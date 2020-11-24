@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">FundooApp</string>
+    <string name="fundoo">Fundoo</string>
+    <string name="create_your_fundoo_account">Create your Fundoo Account</string>
+    <string name="last_name">Last Name</string>
+    <string name="already_have_an_account_login_here">Already have an account? Login here.</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="email">Email</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="new_here_create_account">New here? Create Account</string>
+    <string name="confirm_password">Confirm password</string>
+    <string name="first_name">First Name</string>
+    <string name="sign_up">Sign up</string>
+    <string name="logout">Logout</string>
+    <string name="welcome_to_fundoo_app_home_page">Welcome To Fundoo App Home Page</string>
+    
+    <string name="facebook_app_id">3513111622140986</string>
+    <string name="fb_login_protocol_scheme">fb3513111622140986</string>
+    <string name="forgot_password">Forgot Password?</string>
+
 </resources>
