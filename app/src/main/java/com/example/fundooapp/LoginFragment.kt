@@ -112,7 +112,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
             setMessage("Enter Your email Id to receive the password reset link.")
             setView(emailId)
         }
-        passwordResetDialog.setPositiveButton("Yes") { dialogInterface: DialogInterface, _: Int ->
+        passwordResetDialog.setPositiveButton("Reset") { dialogInterface: DialogInterface, _: Int ->
             firebaseAuth.sendPasswordResetEmail(emailId.text.toString()).addOnSuccessListener {
                 Toast.makeText(context, "Reset link sent to given email Id", Toast.LENGTH_SHORT).show()
                 dialogInterface.dismiss()
@@ -125,7 +125,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
                 dialogInterface.dismiss()
             }
         }.setCancelable(false)
-        passwordResetDialog.setNegativeButton("No") { dialogInterface: DialogInterface, _: Int ->
+        passwordResetDialog.setNegativeButton("Cancel") { dialogInterface: DialogInterface, _: Int ->
             dialogInterface.dismiss()
         }
         passwordResetDialog.create().show()

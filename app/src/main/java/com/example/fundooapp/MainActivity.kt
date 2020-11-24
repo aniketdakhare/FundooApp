@@ -1,9 +1,7 @@
 package com.example.fundooapp
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity(), DelegateActivity {
     override fun onCreate(savedInstanceState: Bundle?) {
