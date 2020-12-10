@@ -1,0 +1,158 @@
+package com.example.fundooapp.model
+
+import android.net.Uri
+import android.os.Bundle
+import android.util.Log
+import com.facebook.AccessToken
+import com.facebook.GraphRequest
+import com.facebook.GraphResponse
+import com.facebook.login.LoginManager
+import com.google.firebase.auth.FacebookAuthProvider
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import org.json.JSONObject
+
+
+class UserService : IUserService {
+    private lateinit var firebaseAuth: FirebaseAuth
+    private lateinit var fireStore: FirebaseFirestore
+    private lateinit var mStorageRef: StorageReference
+
+    init {
+        initService()
+    }
+
+    private fun initService() {
+        firebaseAuth = FirebaseAuth.getInstance()
+        fireStore = FirebaseFirestore.getInstance()
+        mStorageRef = FirebaseStorage.getInstance().reference
+    }
+
+    override fun authenticateUser(email: String, password: String, listener: (Boolean) -> Unit) {
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
+            listener(it.isSuccessful)
+        }
+    }
+
+    override fun registerUser(user: User, listener: (Boolean) -> Unit) {
+        firebaseAuth.createUserWithEmailAndPassword(user.email, user.password)
+            .addOnCompleteListener {
+                if (it.isSuccessful) addUserDetailsToFireStore(user, listener)
+            }
+    }
+
+    override fun resetPassword(emailId: String, listener: (Boolean) -> Unit) {
+        firebaseAuth.sendPasswordResetEmail(emailId).addOnCompleteListener {
+            listener(it.isSuccessful)
+        }
+    }
+
+    override fun facebookLogin(token: AccessToken, listener: (Boolean) -> Unit) {
+        val credentials = FacebookAuthProvider.getCredential(token.token)
+        firebaseAuth.signInWithCredential(credentials).addOnCompleteListener {
+            if (it.isSuccessful) {
+                val user: FirebaseUser? = firebaseAuth.currentUser
+                fetchFacebookProfile { url ->
+                    addUserDetailsToFireStore(
+                        User(
+                            fullName = user?.displayName.toString(), email = user?.email.toString(),
+                            imageUrl = url
+                        ), listener
+                    )
+                }
+            } else listener(false)
+        }
+    }
+
+    override fun logoutUser() {
+        LoginManager.getInstance().logOut()
+        firebaseAuth.signOut()
+    }
+
+    private fun addUserDetailsToFireStore(userDetails: User, listener: (Boolean) -> Unit) {
+
+        val user: MutableMap<String, Any> = HashMap()
+
+        when (userDetails.fullName) {
+            "" -> user[NAME] = "${userDetails.firstName} ${userDetails.lastName}"
+            else -> user[NAME] = userDetails.fullName
+        }
+
+        user[EMAIL] = userDetails.email
+        user[PROFILE_IMAGE_URL] = userDetails.imageUrl
+
+        fireStore.collection("users").document(firebaseAuth.currentUser!!.uid).set(user)
+            .addOnCompleteListener { listener(it.isSuccessful) }
+    }
+
+    override fun getUserDetails(listener: (User) -> Unit) {
+        firebaseAuth.currentUser?.let {
+            fireStore.collection("users").document(it.uid)
+                .addSnapshotListener { value: DocumentSnapshot?, _: FirebaseFirestoreException? ->
+                    listener(
+                        User(
+                            fullName = value?.getString(NAME).toString(),
+                            email = value?.getString(EMAIL).toString(),
+                            imageUrl = value?.getString(PROFILE_IMAGE_URL).toString()
+                        )
+                    )
+                }
+        }
+    }
+
+    override fun uploadImageToFirebase(uri: Uri) {
+        val fileRef = mStorageRef.child("users/${firebaseAuth.currentUser?.uid}/profile.jpg")
+        fileRef.putFile(uri).addOnCompleteListener {
+            fileRef.downloadUrl.addOnCompleteListener { uri ->
+                Log.e(Companion.TAG, "uploadImageToFirebase: ${uri.result}")
+            }
+        }
+    }
+
+    private fun getProfileImage(listener: (Uri?) -> Unit) {
+        val fileRef = mStorageRef.child("users/${firebaseAuth.currentUser?.uid}/profile.jpg")
+        fileRef.downloadUrl.addOnCompleteListener { listener(it.result) }
+    }
+
+    override fun getLoginStatus(listener: (Boolean) -> Unit) {
+        firebaseAuth.addAuthStateListener {
+            listener(it.currentUser != null)
+        }
+    }
+
+    private fun fetchFacebookProfile(listener: (String) -> Unit) {
+        val request =
+            GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken()) { _: JSONObject, graphResponse: GraphResponse ->
+                listener(getImageUrl(graphResponse).toString())
+            }
+        val parameters = Bundle()
+        parameters.putString("fields", "picture.type(large)")
+        request.parameters = parameters
+        request.executeAsync()
+    }
+
+    private fun getImageUrl(response: GraphResponse): String? {
+        var url: String? = null
+        try {
+            url = response.jsonObject
+                .getJSONObject("picture")
+                .getJSONObject("data")
+                .getString("url")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return url
+    }
+
+    companion object {
+        private const val NAME = "name"
+        private const val EMAIL = "emailId"
+        private const val PROFILE_IMAGE_URL = "profileImageUrl"
+        private const val TAG = "UserService"
+    }
+}
