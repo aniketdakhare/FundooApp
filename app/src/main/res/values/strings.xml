@@ -6,6 +6,8 @@
     <string name="already_have_an_account_login_here">Already have an account? Login here.</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="email">Email</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
     <string name="login">Login</string>
     <string name="password">Password</string>
     <string name="new_here_create_account">New here? Create Account</string>
@@ -18,5 +20,11 @@
     <string name="facebook_app_id">3513111622140986</string>
     <string name="fb_login_protocol_scheme">fb3513111622140986</string>
     <string name="forgot_password">Forgot Password?</string>
+    <string name="profile_menu">Profile Menu</string>
+    <string name="list_view">List View</string>
+    <string name="profile_name">Profile Name</string>
+    <string name="profile_email">Profile_Email</string>
+    <string name="signout">SignOut</string>
+    <string name="reminders">Reminders</string>
 
 </resources>
