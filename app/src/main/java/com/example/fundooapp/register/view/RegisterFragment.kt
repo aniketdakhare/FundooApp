@@ -4,23 +4,25 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentRegisterBinding
-import com.example.fundooapp.mainactivity.viewmodel.SharedViewModel
-import com.example.fundooapp.register.model.User
-import com.example.fundooapp.register.model.UserService
+import com.example.fundooapp.model.NotesService
+import com.example.fundooapp.viewmodel.SharedViewModel
+import com.example.fundooapp.model.User
+import com.example.fundooapp.model.UserService
 import com.example.fundooapp.register.viewmodel.RegisterViewModel
 import com.example.fundooapp.register.viewmodel.RegisterViewModelFactory
 import com.example.fundooapp.util.Failed
 import com.example.fundooapp.util.FailingReason.*
 import com.example.fundooapp.util.Loading
 import com.example.fundooapp.util.Succeed
-
+import com.example.fundooapp.viewmodel.SharedViewModelFactory
 
 class RegisterFragment : Fragment(R.layout.fragment_register) {
     private lateinit var registerViewModel: RegisterViewModel
@@ -32,7 +34,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_register, container, false)
         registerViewModel = ViewModelProvider(this, RegisterViewModelFactory(UserService())).get(RegisterViewModel::class.java)
-        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
+        sharedViewModel = ViewModelProvider(requireActivity(), SharedViewModelFactory(UserService(), NotesService()))[SharedViewModel::class.java]
         binding.registerViewModel = registerViewModel
         binding.lifecycleOwner = this
         return binding.root
@@ -104,8 +106,19 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
     }
 
     private fun registerUser(message: String) {
+        sharedViewModel.fetchUserDetails()
         binding.registerProgressBar.visibility = View.GONE
         sharedViewModel.setGoToHomePageStatus(true)
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as AppCompatActivity).supportActionBar?.hide()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        (activity as AppCompatActivity).supportActionBar?.show()
     }
 }

@@ -3,12 +3,13 @@ package com.example.fundooapp.login.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.fundooapp.model.IUserService
+import com.example.fundooapp.model.User
 import com.example.fundooapp.util.Failed
 import com.example.fundooapp.util.FailingReason.*
 import com.example.fundooapp.util.Loading
 import com.example.fundooapp.util.Status
 import com.example.fundooapp.util.Succeed
-import com.example.fundooapp.login.model.IUserService
 import com.facebook.AccessToken
 
 class LoginViewModel(private val userService: IUserService) : ViewModel() {
@@ -54,7 +55,9 @@ class LoginViewModel(private val userService: IUserService) : ViewModel() {
         userService.facebookLogin(token) {
             when (it) {
                 false -> _facebookLoginStatus.value = Failed(FAIL_MSG, OTHER)
-                true -> _facebookLoginStatus.value = Succeed(SUCCESS_MSG)
+                true -> {
+                    _facebookLoginStatus.value = Succeed(SUCCESS_MSG)
+                }
             }
         }
     }

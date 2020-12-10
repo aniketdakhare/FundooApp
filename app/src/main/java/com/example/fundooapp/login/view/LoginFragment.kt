@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -19,10 +20,12 @@ import com.example.fundooapp.util.Failed
 import com.example.fundooapp.util.FailingReason.*
 import com.example.fundooapp.util.Loading
 import com.example.fundooapp.util.Succeed
-import com.example.fundooapp.login.model.UserService
-import com.example.fundooapp.mainactivity.viewmodel.SharedViewModel
+import com.example.fundooapp.model.UserService
+import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.login.viewmodel.LoginViewModel
 import com.example.fundooapp.login.viewmodel.LoginViewModelFactory
+import com.example.fundooapp.model.NotesService
+import com.example.fundooapp.viewmodel.SharedViewModelFactory
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
@@ -41,8 +44,14 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
-        loginViewModel = ViewModelProvider(this, LoginViewModelFactory(this, UserService())).get(LoginViewModel::class.java)
-        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
+        loginViewModel = ViewModelProvider(
+            this,
+            LoginViewModelFactory(UserService())
+        ).get(LoginViewModel::class.java)
+        sharedViewModel = ViewModelProvider(
+            requireActivity(),
+            SharedViewModelFactory(UserService(), NotesService())
+        )[SharedViewModel::class.java]
         binding.loginViewModel = loginViewModel
         binding.lifecycleOwner = this
         callBackManager = CallbackManager.Factory.create()
@@ -98,9 +107,13 @@ class LoginFragment : Fragment() {
     }
 
     private fun loginUser(message: String) {
-        binding.loginProgressBar.visibility = View.GONE
-        sharedViewModel.setGoToHomePageStatus(true)
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        sharedViewModel.fetchUserDetails()
+        sharedViewModel.getAllNotes()
+        sharedViewModel.userDetails.observe(viewLifecycleOwner, {
+            binding.loginProgressBar.visibility = View.GONE
+            sharedViewModel.setGoToHomePageStatus(true)
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun goToSignUpPage() {
@@ -154,24 +167,36 @@ class LoginFragment : Fragment() {
     private fun handleFacebookToken(token: AccessToken) {
         binding.loginProgressBar.visibility = View.VISIBLE
         loginViewModel.loginWithFacebook(token)
-        loginViewModel.facebookLoginStatus.observe(viewLifecycleOwner, {
-            when (it) {
+        loginViewModel.facebookLoginStatus.observe(viewLifecycleOwner, { status ->
+            when (status) {
                 is Succeed -> {
-                    binding.loginProgressBar.visibility = View.GONE
-                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-                    sharedViewModel.setGoToHomePageStatus(true)
+                    sharedViewModel.fetchUserDetails()
+                    sharedViewModel.userDetails.observe(viewLifecycleOwner, {
+                        binding.loginProgressBar.visibility = View.GONE
+                        Toast.makeText(context, status.message, Toast.LENGTH_SHORT).show()
+                        sharedViewModel.setGoToHomePageStatus(true)
+                    })
                 }
                 is Failed -> {
                     binding.loginProgressBar.visibility = View.GONE
-                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, status.message, Toast.LENGTH_SHORT).show()
                 }
             }
         })
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         callBackManager.onActivityResult(requestCode, resultCode, data)
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as AppCompatActivity).supportActionBar?.hide()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        (activity as AppCompatActivity).supportActionBar?.show()
     }
 }

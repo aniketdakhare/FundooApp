@@ -3,8 +3,8 @@ package com.example.fundooapp.register.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.fundooapp.register.model.IUserService
-import com.example.fundooapp.register.model.User
+import com.example.fundooapp.model.IUserService
+import com.example.fundooapp.model.User
 import com.example.fundooapp.util.Failed
 import com.example.fundooapp.util.FailingReason.*
 import com.example.fundooapp.util.Status
@@ -36,7 +36,7 @@ class RegisterViewModel(private val userService: IUserService): ViewModel() {
                     Failed("Please confirm your password again", CONFIRM_PASSWORD)
             }
             else -> {
-                userService.authenticateUser(user) {
+                userService.registerUser(user) {
                     when (it) {
                         false -> _userRegistrationStatus.value = Failed("Registration unsuccessful, Please try again", OTHER)
                         true -> _userRegistrationStatus.value = Succeed("Registration Successful")
