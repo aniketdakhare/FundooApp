@@ -8,7 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.QuerySnapshot
 
 
-class NotesService : INotesService {
+class NotesService(private val dbHelper: DBHelper) : INotesService {
 
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var fireStore: FirebaseFirestore
@@ -22,20 +22,35 @@ class NotesService : INotesService {
         fireStore = FirebaseFirestore.getInstance()
     }
 
-
     override fun notesDbOperation(notes: Note, listener: (Boolean) -> Unit) {
         val note: MutableMap<String, Any> = HashMap()
         note[TITTLE] = notes.tittle
         note[CONTENT] = notes.content
         Log.e(notes.noteId, "saveNotesToFirebase: ")
         when (notes.operation) {
-            ADD -> fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
-                .collection("Notes").document().set(note).addOnCompleteListener{listener(it.isSuccessful)}
-            UPDATE -> fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
-                .collection("Notes").document(notes.noteId).update(note).addOnCompleteListener{listener(it.isSuccessful)}
-            DELETE -> fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
-                .collection("Notes").document(notes.noteId).delete().addOnCompleteListener{listener(it.isSuccessful)}
+            ADD -> addNotes(note,notes, listener)
+            UPDATE -> updateNotes(note, notes, listener)
+            DELETE -> deleteNotes(notes.noteId, listener)
         }
+    }
+
+    private fun deleteNotes(noteId: String, listener: (Boolean) -> Unit) {
+        fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
+            .collection("Notes").document(noteId).delete().addOnCompleteListener{listener(it.isSuccessful)}
+    }
+
+    private fun updateNotes(
+        note: MutableMap<String, Any>, notes: Note, listener: (Boolean) -> Unit
+    ) {
+        fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
+            .collection("Notes").document(notes.noteId).update(note).addOnCompleteListener{listener(it.isSuccessful)}
+    }
+
+    private fun addNotes(note: MutableMap<String, Any>, notes: Note, listener: (Boolean) -> Unit) {
+        fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
+            .collection("Notes").document().set(note).addOnCompleteListener{listener(it.isSuccessful)}
+        notes.userId = firebaseAuth.currentUser!!.uid
+        dbHelper.addNote(notes)
     }
 
     override fun fetchNotesFromFireBase(listener: (List<Note>) -> Unit) {

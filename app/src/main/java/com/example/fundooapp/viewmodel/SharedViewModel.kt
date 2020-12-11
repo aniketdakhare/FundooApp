@@ -8,14 +8,15 @@ import com.example.fundooapp.model.*
 import com.example.fundooapp.util.ViewType
 
 class SharedViewModel(private val userService: IUserService, private val notesService: INotesService) : ViewModel() {
-    private val _notesDisplayType = MutableLiveData<ViewType>()
-    val notesDisplayType = _notesDisplayType as LiveData<ViewType>
+
+    init {
+        fetchUserDetails()
+        fetchProfileImageUri()
+        getAllNotes()
+    }
 
     private val _goToRegisterPageStatus = MutableLiveData<Boolean>()
     val goToRegisterPageStatus = _goToRegisterPageStatus as LiveData<Boolean>
-
-    private val _notesOperation = MutableLiveData<Note>()
-    val notesOperation = _notesOperation as LiveData<Note>
 
     private val _goToLoginPageStatus = MutableLiveData<Boolean>()
     val goToLoginPageStatus = _goToLoginPageStatus as LiveData<Boolean>
@@ -29,22 +30,12 @@ class SharedViewModel(private val userService: IUserService, private val notesSe
     private val _userDetails = MutableLiveData<User>()
     val userDetails = _userDetails as LiveData<User>
 
-    private val _isNotesOperated = MutableLiveData<Boolean>()
-    val isNotesOperated = _isNotesOperated as LiveData<Boolean>
-
-    private val _notes = MutableLiveData<List<Note>>()
-    val notes = _notes as LiveData<List<Note>>
-
     fun setGoToRegisterPageStatus(status: Boolean) {
         _goToRegisterPageStatus.value = status
     }
 
     fun setGoToLoginPageStatus(status: Boolean) {
         _goToLoginPageStatus.value = status
-    }
-
-    fun setNotesOperation(note: Note) {
-        _notesOperation.value = note
     }
 
     fun setGoToHomePageStatus(status: Boolean) {
@@ -55,15 +46,33 @@ class SharedViewModel(private val userService: IUserService, private val notesSe
         _imageUri.value = imageUri
     }
 
-    fun setNotesDisplayType(viewType: ViewType) {
-        _notesDisplayType.value = viewType
-    }
-
     fun fetchUserDetails() {
         userService.getUserDetails {
             _userDetails.value = it
         }
     }
+
+    private fun fetchProfileImageUri() {
+        userService.getProfileImage {
+            _imageUri.value = it
+        }
+    }
+
+    fun setUserDetails(user: User) {
+        _userDetails.value = user
+    }
+
+    private val _notesDisplayType = MutableLiveData<ViewType>()
+    val notesDisplayType = _notesDisplayType as LiveData<ViewType>
+
+    private val _notesOperation = MutableLiveData<Note>()
+    val notesOperation = _notesOperation as LiveData<Note>
+
+    private val _isNotesOperated = MutableLiveData<Boolean>()
+    val isNotesOperated = _isNotesOperated as LiveData<Boolean>
+
+    private val _notes = MutableLiveData<List<Note>>()
+    val notes = _notes as LiveData<List<Note>>
 
     fun notesOperation(notes: Note) {
         notesService.notesDbOperation(notes){
@@ -75,5 +84,13 @@ class SharedViewModel(private val userService: IUserService, private val notesSe
         notesService.fetchNotesFromFireBase{
             _notes.value = it
         }
+    }
+
+    fun setNotesOperation(note: Note) {
+        _notesOperation.value = note
+    }
+
+    fun setNotesDisplayType(viewType: ViewType) {
+        _notesDisplayType.value = viewType
     }
 }

@@ -11,7 +11,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "User.db", null, 1)
         val createUser =
             "CREATE TABLE $USERS($USER_ID TEXT PRIMARY KEY, $USER_NAME TEXT, $USER_EMAIL TEXT, $USER_IMAGE_URL TEXT, $USER_IMAGE_URI TEXT)"
         val createNotes =
-            "CREATE TABLE $NOTES($USER_ID TEXT,$NOTE_ID TEXT,$NOTE_TITTLE TEXT,$NOTE_CONTENT TEXT,FOREIGN KEY ($USER_ID) REFERENCES Users($USER_ID))"
+            "CREATE TABLE $NOTES($USER_ID TEXT,$NOTE_ID TEXT,$NOTE_TITTLE TEXT,$NOTE_CONTENT TEXT)"
 
         db?.execSQL(createUser)
         db?.execSQL(createNotes)

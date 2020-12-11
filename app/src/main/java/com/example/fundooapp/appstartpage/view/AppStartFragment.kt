@@ -12,6 +12,7 @@ import com.example.fundooapp.R
 import com.example.fundooapp.appstartpage.viewmodel.AppStartViewModel
 import com.example.fundooapp.appstartpage.viewmodel.AppStartViewModelFactory
 import com.example.fundooapp.databinding.FragmentAppStartBinding
+import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.model.UserService
@@ -28,7 +29,8 @@ class AppStartFragment : Fragment() {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_app_start, container, false)
         appStartViewModel = ViewModelProvider(this, AppStartViewModelFactory(UserService())).get(AppStartViewModel::class.java)
-        sharedViewModel = ViewModelProvider(requireActivity(), SharedViewModelFactory(UserService(), NotesService()))[SharedViewModel::class.java]
+        sharedViewModel = ViewModelProvider(requireActivity(), SharedViewModelFactory(UserService(),
+            NotesService(DBHelper(requireContext()))))[SharedViewModel::class.java]
         binding.appStartViewModel = appStartViewModel
         binding.lifecycleOwner = this
         return binding.root
@@ -44,12 +46,12 @@ class AppStartFragment : Fragment() {
         appStartViewModel.isUserLoggedIn.observe(viewLifecycleOwner, {
             when (it) {
                 true -> {
-                    sharedViewModel.fetchUserDetails()
-                    sharedViewModel.getAllNotes()
-                    sharedViewModel.userDetails.observe(viewLifecycleOwner, {
+//                    sharedViewModel.fetchUserDetails()
+//                    sharedViewModel.getAllNotes()
+//                    sharedViewModel.userDetails.observe(viewLifecycleOwner, {
                         sharedViewModel.setGoToHomePageStatus(true)
                         binding.appStartProgressbar.visibility = View.GONE
-                    })
+//                    })
                 }
                 false -> {
                     sharedViewModel.setGoToLoginPageStatus(true)

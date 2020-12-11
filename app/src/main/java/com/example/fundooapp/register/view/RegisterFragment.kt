@@ -1,6 +1,8 @@
 package com.example.fundooapp.register.view
 
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentRegisterBinding
+import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.model.User
@@ -33,8 +36,14 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_register, container, false)
-        registerViewModel = ViewModelProvider(this, RegisterViewModelFactory(UserService())).get(RegisterViewModel::class.java)
-        sharedViewModel = ViewModelProvider(requireActivity(), SharedViewModelFactory(UserService(), NotesService()))[SharedViewModel::class.java]
+        registerViewModel = ViewModelProvider(
+            this,
+            RegisterViewModelFactory(UserService())
+        ).get(RegisterViewModel::class.java)
+        sharedViewModel = ViewModelProvider(
+            requireActivity(),
+            SharedViewModelFactory(UserService(), NotesService(DBHelper(requireContext())))
+        )[SharedViewModel::class.java]
         binding.registerViewModel = registerViewModel
         binding.lifecycleOwner = this
         return binding.root
@@ -62,7 +71,17 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
         val firstName = binding.firstName.text.toString()
         val lastName = binding.lastName.text.toString()
 
-        registerViewModel.registerUser(User(firstName, lastName, email, password, confirmPassword))
+        Log.e("Pwd: $password", ":: Cpwd: $confirmPassword")
+        registerViewModel.registerUser(
+            User(
+                firstName = firstName,
+                lastName = lastName,
+                email = email,
+                password = password,
+                confirmPassword = confirmPassword,
+                imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/PICA.jpg/900px-PICA.jpg"
+            )
+        )
 
         registerViewModel.userRegistrationStatus.observe(viewLifecycleOwner, Observer {
             when (it) {

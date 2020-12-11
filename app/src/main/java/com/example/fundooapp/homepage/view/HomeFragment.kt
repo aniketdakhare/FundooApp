@@ -16,6 +16,7 @@ import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentHomeBinding
 import com.example.fundooapp.homepage.viewmodel.HomeViewModel
 import com.example.fundooapp.homepage.viewmodel.HomeViewModelFactory
+import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
@@ -26,7 +27,6 @@ import com.example.fundooapp.util.NotesOperation.UPDATE
 import com.example.fundooapp.util.ViewType
 import com.example.fundooapp.util.ViewType.*
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter
 import kotlinx.android.synthetic.main.notes_display_layout.view.*
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -41,8 +41,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
-        homeViewModel = ViewModelProvider(this, HomeViewModelFactory(NotesService())).get(HomeViewModel::class.java)
-        sharedViewModel = ViewModelProvider(requireActivity(), SharedViewModelFactory(UserService(), NotesService()))[SharedViewModel::class.java]
+        homeViewModel = ViewModelProvider(
+            this,
+            HomeViewModelFactory(NotesService(DBHelper(requireContext())))
+        ).get(HomeViewModel::class.java)
+        sharedViewModel = ViewModelProvider(
+            requireActivity(), SharedViewModelFactory(
+                UserService(), NotesService(
+                    DBHelper(requireContext())
+                )
+            )
+        )[SharedViewModel::class.java]
         binding.homeViewModel = homeViewModel
         binding.lifecycleOwner = this
         viewType = GRID
@@ -56,7 +65,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             notes = it
         })
 
-        adapter = object : RecyclerView.Adapter<NoteViewHolder>(){
+        adapter = object : RecyclerView.Adapter<NoteViewHolder>() {
 
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
                 val displayView = LayoutInflater.from(parent.context)
@@ -67,14 +76,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
                 val note = notes[position]
                 holder.bind(note)
-                holder.view.setOnClickListener{
-                    sharedViewModel.setNotesOperation(Note(note.tittle, note.content, note.noteId, operation = UPDATE))
+                holder.view.setOnClickListener {
+                    sharedViewModel.setNotesOperation(
+                        Note(
+                            note.tittle,
+                            note.content,
+                            note.noteId,
+                            operation = UPDATE
+                        )
+                    )
                 }
 
-                holder.view.findViewById<ImageView>(R.id.menuIcon).setOnClickListener{
+                holder.view.findViewById<ImageView>(R.id.menuIcon).setOnClickListener {
                     val popupMenu = PopupMenu(it.context, it)
                     popupMenu.menu.add("Delete").setOnMenuItemClickListener {
-                        sharedViewModel.notesOperation(Note(noteId = note.noteId, operation = DELETE))
+                        sharedViewModel.notesOperation(
+                            Note(
+                                noteId = note.noteId,
+                                operation = DELETE
+                            )
+                        )
                         return@setOnMenuItemClickListener false
                     }
                     popupMenu.show()
@@ -98,14 +119,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onResume() {
         super.onResume()
-        sharedViewModel.notesDisplayType.observe(viewLifecycleOwner, Observer{
+        sharedViewModel.notesDisplayType.observe(viewLifecycleOwner, Observer {
             this.viewType = it
             displayNotes()
         })
     }
 
     private fun displayNotes() {
-        binding.notesList.layoutManager = StaggeredGridLayoutManager(viewType.flag, StaggeredGridLayoutManager.VERTICAL)
+        binding.notesList.layoutManager =
+            StaggeredGridLayoutManager(viewType.flag, StaggeredGridLayoutManager.VERTICAL)
         binding.notesList.adapter = adapter
     }
 }

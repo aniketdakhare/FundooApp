@@ -1,5 +1,6 @@
 package com.example.fundooapp.login.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,6 +14,11 @@ import com.example.fundooapp.util.Succeed
 import com.facebook.AccessToken
 
 class LoginViewModel(private val userService: IUserService) : ViewModel() {
+
+    init {
+        fetchProfileImageUri()
+    }
+
     private val _userAuthenticationStatus = MutableLiveData<Status>()
     val userAuthenticationStatus = _userAuthenticationStatus as LiveData<Status>
 
@@ -21,6 +27,12 @@ class LoginViewModel(private val userService: IUserService) : ViewModel() {
 
     private val _facebookLoginStatus = MutableLiveData<Status>()
     val facebookLoginStatus = _facebookLoginStatus as LiveData<Status>
+
+    private val _userDetails = MutableLiveData<User>()
+    val userDetails = _userDetails as LiveData<User>
+
+    private val _imageUri = MutableLiveData<Uri>()
+    val imageUri = _imageUri as LiveData<Uri>
 
     fun authenticateUser(email: String, password: String) {
         _userAuthenticationStatus.value = Loading
@@ -52,13 +64,20 @@ class LoginViewModel(private val userService: IUserService) : ViewModel() {
     }
 
     fun loginWithFacebook(token: AccessToken) {
-        userService.facebookLogin(token) {
-            when (it) {
+        userService.facebookLogin(token) { user: User, status: Boolean ->
+            when (status) {
                 false -> _facebookLoginStatus.value = Failed(FAIL_MSG, OTHER)
                 true -> {
                     _facebookLoginStatus.value = Succeed(SUCCESS_MSG)
+                    _userDetails.value = user
                 }
             }
+        }
+    }
+
+    private fun fetchProfileImageUri() {
+        userService.getProfileImage {
+            _imageUri.value = it
         }
     }
 

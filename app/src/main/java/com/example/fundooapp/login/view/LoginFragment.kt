@@ -24,6 +24,7 @@ import com.example.fundooapp.model.UserService
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.login.viewmodel.LoginViewModel
 import com.example.fundooapp.login.viewmodel.LoginViewModelFactory
+import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 import com.facebook.AccessToken
@@ -50,7 +51,7 @@ class LoginFragment : Fragment() {
         ).get(LoginViewModel::class.java)
         sharedViewModel = ViewModelProvider(
             requireActivity(),
-            SharedViewModelFactory(UserService(), NotesService())
+            SharedViewModelFactory(UserService(), NotesService(DBHelper(requireContext())))
         )[SharedViewModel::class.java]
         binding.loginViewModel = loginViewModel
         binding.lifecycleOwner = this
@@ -107,8 +108,9 @@ class LoginFragment : Fragment() {
     }
 
     private fun loginUser(message: String) {
-        sharedViewModel.fetchUserDetails()
-        sharedViewModel.getAllNotes()
+        loginViewModel.imageUri.observe(viewLifecycleOwner, {
+            sharedViewModel.setImageUri(it)
+        })
         sharedViewModel.userDetails.observe(viewLifecycleOwner, {
             binding.loginProgressBar.visibility = View.GONE
             sharedViewModel.setGoToHomePageStatus(true)
@@ -170,8 +172,8 @@ class LoginFragment : Fragment() {
         loginViewModel.facebookLoginStatus.observe(viewLifecycleOwner, { status ->
             when (status) {
                 is Succeed -> {
-                    sharedViewModel.fetchUserDetails()
-                    sharedViewModel.userDetails.observe(viewLifecycleOwner, {
+                    loginViewModel.userDetails.observe(viewLifecycleOwner, {
+                        sharedViewModel.setUserDetails(it)
                         binding.loginProgressBar.visibility = View.GONE
                         Toast.makeText(context, status.message, Toast.LENGTH_SHORT).show()
                         sharedViewModel.setGoToHomePageStatus(true)

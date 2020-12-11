@@ -12,6 +12,7 @@ import com.example.fundooapp.R
 import com.example.fundooapp.notes.viewmodel.NotesViewModel
 import com.example.fundooapp.notes.viewmodel.NotesViewModelFactory
 import com.example.fundooapp.databinding.AddNotesFragmentBinding
+import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
@@ -28,8 +29,11 @@ class AddNotesFragment(val note: Note) : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.add_notes_fragment, container, false)
-        notesViewModel = ViewModelProvider(this, NotesViewModelFactory(NotesService())).get(NotesViewModel::class.java)
-        sharedViewModel = ViewModelProvider(requireActivity(), SharedViewModelFactory(UserService(), NotesService()))[SharedViewModel::class.java]
+        notesViewModel = ViewModelProvider(this, NotesViewModelFactory(NotesService(DBHelper(requireContext())))).get(NotesViewModel::class.java)
+        sharedViewModel = ViewModelProvider(requireActivity(), SharedViewModelFactory(UserService(), NotesService(
+            DBHelper(requireContext())
+        )
+        ))[SharedViewModel::class.java]
         binding.addNotesViewModel = notesViewModel
         binding.lifecycleOwner = this
         return binding.root

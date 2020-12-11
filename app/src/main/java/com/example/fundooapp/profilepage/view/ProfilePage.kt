@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentProfilePageBinding
+import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.model.UserService
@@ -31,16 +32,15 @@ class ProfilePage : DialogFragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_profile_page, container, false)
         profileViewModel = ViewModelProvider(this, ProfileViewModelFactory(UserService())).get(
             ProfileViewModel::class.java)
-        sharedViewModel = ViewModelProvider(requireActivity(), SharedViewModelFactory(UserService(), NotesService()))[SharedViewModel::class.java]
+        sharedViewModel = ViewModelProvider(requireActivity(), SharedViewModelFactory(UserService(), NotesService(
+            DBHelper(requireContext())
+        )
+        ))[SharedViewModel::class.java]
         binding.profileViewModel = profileViewModel
         binding.lifecycleOwner = this
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        setProfileDetails()
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -57,6 +57,7 @@ class ProfilePage : DialogFragment() {
             val openGalleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             startActivityForResult(openGalleryIntent, 200)
         }
+        setProfileDetails()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
@@ -75,8 +76,9 @@ class ProfilePage : DialogFragment() {
             binding.profileEmail.text = it.email
             if (it.imageUrl != "")
                 Glide.with(this).load(it.imageUrl).into(binding.profileImageView)
-            if (it.imageUri != null)
-                Glide.with(this).load(it.imageUri).into(binding.profileImageView)
+        })
+        sharedViewModel.imageUri.observe(viewLifecycleOwner, {
+            Glide.with(this).load(it).into(binding.profileImageView)
         })
     }
 }

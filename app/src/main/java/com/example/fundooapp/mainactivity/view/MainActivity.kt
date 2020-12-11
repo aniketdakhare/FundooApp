@@ -1,7 +1,6 @@
 package com.example.fundooapp.mainactivity.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,6 +17,7 @@ import com.example.fundooapp.appstartpage.view.AppStartFragment
 import com.example.fundooapp.databinding.ActivityMainBinding
 import com.example.fundooapp.homepage.view.HomeFragment
 import com.example.fundooapp.login.view.LoginFragment
+import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
@@ -81,7 +81,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun initActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        sharedViewModel = ViewModelProvider(this, SharedViewModelFactory(UserService(), NotesService()))[SharedViewModel::class.java]
+        sharedViewModel = ViewModelProvider(this, SharedViewModelFactory(UserService(), NotesService(
+            DBHelper(this)
+        )
+        ))[SharedViewModel::class.java]
     }
 
     private fun observeAppNavigation() {
@@ -153,15 +156,13 @@ class MainActivity : AppCompatActivity() {
             ProfilePage().show(supportFragmentManager, "User Profile")
         }
         sharedViewModel.imageUri.observe(this, {
-            Glide.with(this).load(it).into(profileImage)
+            if (it != null) Glide.with(this).load(it).into(profileImage)
         })
         sharedViewModel.userDetails.observe(this, {
-            Log.e("MainActivity: User: ", it.toString() )
             if (it.imageUrl != "") Glide.with(this).load(it.imageUrl).into(profileImage)
-            if (it.imageUri != null) {
-                Glide.with(this).load(it.imageUri.toString()).into(profileImage)
-                Log.e("onCreateOptionsMenu: ", it.imageUri.toString())
-            }
+//            if (it.imageUri != null) {
+//                Glide.with(this).load(it.imageUri).into(profileImage)
+//            }
         })
         return super.onCreateOptionsMenu(menu)
     }

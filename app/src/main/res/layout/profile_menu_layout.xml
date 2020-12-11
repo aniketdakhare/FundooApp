@@ -13,5 +13,5 @@
         android:id="@+id/toolbar_profile_image"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:src="@mipmap/ic_launcher"/>
+        android:src="@drawable/com_facebook_profile_picture_blank_square"/>
 </FrameLayout>

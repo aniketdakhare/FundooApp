@@ -12,8 +12,8 @@ class AppStartViewModel(private val service: IUserService): ViewModel() {
     val isUserLoggedIn = _isUserLoggedIn as LiveData<Boolean>
 
     fun checkUserExistence() {
-        _isUserLoggedIn.value = true
         service.getLoginStatus{
+            _isUserLoggedIn.value = it
         }
     }
 }
