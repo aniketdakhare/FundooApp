@@ -17,7 +17,6 @@ import com.example.fundooapp.databinding.FragmentHomeBinding
 import com.example.fundooapp.homepage.viewmodel.HomeViewModel
 import com.example.fundooapp.homepage.viewmodel.HomeViewModelFactory
 import com.example.fundooapp.model.DBHelper
-import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
@@ -26,6 +25,7 @@ import com.example.fundooapp.util.NotesOperation.DELETE
 import com.example.fundooapp.util.NotesOperation.UPDATE
 import com.example.fundooapp.util.ViewType
 import com.example.fundooapp.util.ViewType.*
+import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 import kotlinx.android.synthetic.main.notes_display_layout.view.*
 

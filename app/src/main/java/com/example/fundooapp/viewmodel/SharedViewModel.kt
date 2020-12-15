@@ -4,15 +4,19 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.fundooapp.model.*
+import com.example.fundooapp.model.INotesService
+import com.example.fundooapp.model.IUserService
+import com.example.fundooapp.model.Note
+import com.example.fundooapp.model.User
 import com.example.fundooapp.util.ViewType
 
-class SharedViewModel(private val userService: IUserService, private val notesService: INotesService) : ViewModel() {
+class SharedViewModel(
+    private val userService: IUserService,
+    private val notesService: INotesService
+) : ViewModel() {
 
     init {
         fetchUserDetails()
-        fetchProfileImageUri()
-        getAllNotes()
     }
 
     private val _goToRegisterPageStatus = MutableLiveData<Boolean>()
@@ -52,12 +56,6 @@ class SharedViewModel(private val userService: IUserService, private val notesSe
         }
     }
 
-    private fun fetchProfileImageUri() {
-        userService.getProfileImage {
-            _imageUri.value = it
-        }
-    }
-
     fun setUserDetails(user: User) {
         _userDetails.value = user
     }
@@ -75,13 +73,13 @@ class SharedViewModel(private val userService: IUserService, private val notesSe
     val notes = _notes as LiveData<List<Note>>
 
     fun notesOperation(notes: Note) {
-        notesService.notesDbOperation(notes){
+        notesService.notesDbOperation(notes) {
             _isNotesOperated.value = it
         }
     }
 
-    fun getAllNotes(){
-        notesService.fetchNotesFromFireBase{
+    fun getAllNotes() {
+        notesService.fetchNotes {
             _notes.value = it
         }
     }

@@ -53,10 +53,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        binding.contentLayout.addNotesFab.setOnClickListener{
+        binding.contentLayout.addNotesFab.setOnClickListener {
             sharedViewModel.setNotesOperation(Note())
         }
     }
+
     private fun setNavigationDrawer() {
         toggle = ActionBarDrawerToggle(
             this,
@@ -81,10 +82,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun initActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        sharedViewModel = ViewModelProvider(this, SharedViewModelFactory(UserService(), NotesService(
-            DBHelper(this)
-        )
-        ))[SharedViewModel::class.java]
+        sharedViewModel = ViewModelProvider(
+            this, SharedViewModelFactory(
+                UserService(), NotesService(
+                    DBHelper(this)
+                )
+            )
+        )[SharedViewModel::class.java]
     }
 
     private fun observeAppNavigation() {
@@ -159,10 +163,8 @@ class MainActivity : AppCompatActivity() {
             if (it != null) Glide.with(this).load(it).into(profileImage)
         })
         sharedViewModel.userDetails.observe(this, {
-            if (it.imageUrl != "") Glide.with(this).load(it.imageUrl).into(profileImage)
-//            if (it.imageUri != null) {
-//                Glide.with(this).load(it.imageUri).into(profileImage)
-//            }
+            if (it.imageUrl != "")
+                Glide.with(this).load(it.imageUrl).into(profileImage)
         })
         return super.onCreateOptionsMenu(menu)
     }

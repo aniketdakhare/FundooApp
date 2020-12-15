@@ -28,9 +28,16 @@ class AppStartFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_app_start, container, false)
-        appStartViewModel = ViewModelProvider(this, AppStartViewModelFactory(UserService())).get(AppStartViewModel::class.java)
-        sharedViewModel = ViewModelProvider(requireActivity(), SharedViewModelFactory(UserService(),
-            NotesService(DBHelper(requireContext()))))[SharedViewModel::class.java]
+        appStartViewModel = ViewModelProvider(
+            this,
+            AppStartViewModelFactory(UserService())
+        ).get(AppStartViewModel::class.java)
+        sharedViewModel = ViewModelProvider(
+            requireActivity(), SharedViewModelFactory(
+                UserService(),
+                NotesService(DBHelper(requireContext()))
+            )
+        )[SharedViewModel::class.java]
         binding.appStartViewModel = appStartViewModel
         binding.lifecycleOwner = this
         return binding.root
@@ -49,8 +56,8 @@ class AppStartFragment : Fragment() {
 //                    sharedViewModel.fetchUserDetails()
 //                    sharedViewModel.getAllNotes()
 //                    sharedViewModel.userDetails.observe(viewLifecycleOwner, {
-                        sharedViewModel.setGoToHomePageStatus(true)
-                        binding.appStartProgressbar.visibility = View.GONE
+                    sharedViewModel.setGoToHomePageStatus(true)
+                    binding.appStartProgressbar.visibility = View.GONE
 //                    })
                 }
                 false -> {
@@ -65,6 +72,7 @@ class AppStartFragment : Fragment() {
         setUser()
         super.onStart()
     }
+
     override fun onResume() {
         super.onResume()
         (activity as AppCompatActivity).supportActionBar?.hide()

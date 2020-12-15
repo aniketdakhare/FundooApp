@@ -16,16 +16,16 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentLoginBinding
-import com.example.fundooapp.util.Failed
-import com.example.fundooapp.util.FailingReason.*
-import com.example.fundooapp.util.Loading
-import com.example.fundooapp.util.Succeed
-import com.example.fundooapp.model.UserService
-import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.login.viewmodel.LoginViewModel
 import com.example.fundooapp.login.viewmodel.LoginViewModelFactory
 import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.NotesService
+import com.example.fundooapp.model.UserService
+import com.example.fundooapp.util.Failed
+import com.example.fundooapp.util.FailingReason.*
+import com.example.fundooapp.util.Loading
+import com.example.fundooapp.util.Succeed
+import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 import com.facebook.AccessToken
 import com.facebook.CallbackManager
@@ -108,9 +108,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun loginUser(message: String) {
-        loginViewModel.imageUri.observe(viewLifecycleOwner, {
-            sharedViewModel.setImageUri(it)
-        })
+        sharedViewModel.fetchUserDetails()
         sharedViewModel.userDetails.observe(viewLifecycleOwner, {
             binding.loginProgressBar.visibility = View.GONE
             sharedViewModel.setGoToHomePageStatus(true)

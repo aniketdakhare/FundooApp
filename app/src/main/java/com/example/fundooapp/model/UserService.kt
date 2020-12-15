@@ -22,7 +22,6 @@ class UserService : IUserService {
     private lateinit var firebaseAuth: FirebaseAuth
     private lateinit var fireStore: FirebaseFirestore
     private lateinit var mStorageRef: StorageReference
-//    private lateinit var userDetails: User
 
     init {
         initService()
@@ -65,7 +64,7 @@ class UserService : IUserService {
                         email = user?.email.toString(),
                         imageUrl = url
                     )
-                    addUserDetailsToFireStore(userDetails){}
+                    addUserDetailsToFireStore(userDetails) {}
                     listener(userDetails, true)
                 }
             } else listener(User(), false)
@@ -78,7 +77,6 @@ class UserService : IUserService {
     }
 
     private fun addUserDetailsToFireStore(userDetails: User, listener: (Boolean) -> Unit) {
-//        this.userDetails = userDetails
         val user: MutableMap<String, Any> = HashMap()
 
         when (userDetails.fullName) {
@@ -98,13 +96,13 @@ class UserService : IUserService {
             fireStore.collection(USER_COLLECTION).document(it.uid)
                 .addSnapshotListener { value: DocumentSnapshot?, _: FirebaseFirestoreException? ->
 
-                        listener(
-                            User(
-                                fullName = value?.getString(NAME).toString(),
-                                email = value?.getString(EMAIL).toString(),
-                                imageUrl = value?.getString(PROFILE_IMAGE_URL).toString()
-                            )
+                    listener(
+                        User(
+                            fullName = value?.getString(NAME).toString(),
+                            email = value?.getString(EMAIL).toString(),
+                            imageUrl = value?.getString(PROFILE_IMAGE_URL).toString()
                         )
+                    )
                 }
         }
     }
@@ -113,18 +111,14 @@ class UserService : IUserService {
         val fileRef =
             mStorageRef.child("$USER_COLLECTION/${firebaseAuth.currentUser?.uid}/profile.jpg")
         fileRef.putFile(uri)
-//            .addOnCompleteListener {
-//            fileRef.downloadUrl.addOnCompleteListener { uri ->
-//                fireStore.collection(USER_COLLECTION).document(firebaseAuth.currentUser!!.uid).update(
-//                    PROFILE_IMAGE_URL, uri.result.toString())}
-//                }
-    }
-
-
-    override fun getProfileImage(listener: (Uri?) -> Unit) {
-        val fileRef = mStorageRef.child("users/${firebaseAuth.currentUser?.uid}/profile.jpg")
-        fileRef.downloadUrl.addOnSuccessListener { listener(it)
-            Log.e(TAG, "getProfileImage: $it")}
+            .addOnCompleteListener {
+                fileRef.downloadUrl.addOnSuccessListener { uri ->
+                    fireStore.collection(USER_COLLECTION).document(firebaseAuth.currentUser!!.uid)
+                        .update(
+                            PROFILE_IMAGE_URL, uri.toString()
+                        )
+                }
+            }
     }
 
     override fun getLoginStatus(listener: (Boolean) -> Unit) {

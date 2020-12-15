@@ -8,5 +8,6 @@ class Note(
     val content: String = "",
     val noteId: String = "",
     val operation: NotesOperation = ADD,
-    var userId: String = ""
+    var userId: String = "",
+    var dbNoteId: Int = 0
 )

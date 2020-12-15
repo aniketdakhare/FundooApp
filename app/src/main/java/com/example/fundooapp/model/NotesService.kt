@@ -4,8 +4,6 @@ import android.util.Log
 import com.example.fundooapp.util.NotesOperation.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.QuerySnapshot
 
 
 class NotesService(private val dbHelper: DBHelper) : INotesService {
@@ -30,20 +28,20 @@ class NotesService(private val dbHelper: DBHelper) : INotesService {
         when (notes.operation) {
             ADD -> addNotes(note,notes, listener)
             UPDATE -> updateNotes(note, notes, listener)
-            DELETE -> deleteNotes(notes.noteId, listener)
+            DELETE -> deleteNotes(notes, listener)
         }
     }
 
-    private fun deleteNotes(noteId: String, listener: (Boolean) -> Unit) {
+    private fun deleteNotes(note: Note, listener: (Boolean) -> Unit) {
         fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
-            .collection("Notes").document(noteId).delete().addOnCompleteListener{listener(it.isSuccessful)}
+            .collection("Notes").document(note.noteId).delete().addOnCompleteListener{listener(it.isSuccessful)}
+        dbHelper.deleteNote(note)
     }
 
-    private fun updateNotes(
-        note: MutableMap<String, Any>, notes: Note, listener: (Boolean) -> Unit
-    ) {
+    private fun updateNotes(note: MutableMap<String, Any>, notes: Note, listener: (Boolean) -> Unit) {
         fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
             .collection("Notes").document(notes.noteId).update(note).addOnCompleteListener{listener(it.isSuccessful)}
+        dbHelper.updateNote(notes)
     }
 
     private fun addNotes(note: MutableMap<String, Any>, notes: Note, listener: (Boolean) -> Unit) {
@@ -53,19 +51,21 @@ class NotesService(private val dbHelper: DBHelper) : INotesService {
         dbHelper.addNote(notes)
     }
 
-    override fun fetchNotesFromFireBase(listener: (List<Note>) -> Unit) {
-        firebaseAuth.currentUser?.let {
-            fireStore.collection("users").document(it.uid).collection("Notes")
-                .addSnapshotListener{ querySnapshot: QuerySnapshot?, _: FirebaseFirestoreException? ->
-                    val notes: MutableList<Note> = mutableListOf()
-                    if (querySnapshot != null) {
-                        for (document in querySnapshot) {
-                            notes.add(Note(document.getString(TITTLE).toString(), document.getString(CONTENT).toString(), document.id, userId = it.uid))
-                        }
-                    }
-                    listener(notes)
-            }
-        }
+    override fun fetchNotes(listener: (List<Note>) -> Unit) {
+        firebaseAuth.currentUser?.let { dbHelper.fetchNotes(listener, it.uid) }
+
+//        firebaseAuth.currentUser?.let {
+//            fireStore.collection("users").document(it.uid).collection("Notes")
+//                .addSnapshotListener{ querySnapshot: QuerySnapshot?, _: FirebaseFirestoreException? ->
+//                    val notes: MutableList<Note> = mutableListOf()
+//                    if (querySnapshot != null) {
+//                        for (document in querySnapshot) {
+//                            notes.add(Note(document.getString(TITTLE).toString(), document.getString(CONTENT).toString(), document.id, userId = it.uid))
+//                        }
+//                    }
+//                    listener(notes)
+//            }
+//        }
     }
 
     companion object {

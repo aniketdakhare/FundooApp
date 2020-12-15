@@ -12,5 +12,4 @@ interface IUserService {
     fun getUserDetails(listener: (User) -> Unit)
     fun uploadImageToFirebase(uri: Uri)
     fun getLoginStatus(listener: (Boolean) -> Unit)
-    fun getProfileImage(listener: (Uri?) -> Unit)
 }
