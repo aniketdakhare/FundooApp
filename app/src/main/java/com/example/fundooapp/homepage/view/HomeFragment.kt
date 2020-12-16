@@ -1,11 +1,8 @@
 package com.example.fundooapp.homepage.view
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.PopupMenu
+import android.view.*
+import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -21,21 +18,18 @@ import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
 import com.example.fundooapp.notesdisplay.view.NoteViewHolder
-import com.example.fundooapp.util.NotesOperation.DELETE
-import com.example.fundooapp.util.NotesOperation.UPDATE
+import com.example.fundooapp.notesdisplay.view.NotesViewAdapter
 import com.example.fundooapp.util.ViewType
 import com.example.fundooapp.util.ViewType.*
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
-import kotlinx.android.synthetic.main.notes_display_layout.view.*
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var viewType: ViewType
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var binding: FragmentHomeBinding
-    private var notes: List<Note> = listOf()
-    private lateinit var adapter: RecyclerView.Adapter<NoteViewHolder>
+    private lateinit var adapter: NotesViewAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -62,59 +56,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
         sharedViewModel.getAllNotes()
         sharedViewModel.notes.observe(viewLifecycleOwner, {
-            notes = it
+            val notes = it
+            adapter = NotesViewAdapter(notes, sharedViewModel)
+            sharedViewModel.setNotesAdapter(adapter)
+            binding.notesList.adapter = adapter
+            displayNotes()
         })
-
-        adapter = object : RecyclerView.Adapter<NoteViewHolder>() {
-
-            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NoteViewHolder {
-                val displayView = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.notes_display_layout, parent, false)
-                return NoteViewHolder(displayView)
-            }
-
-            override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
-                val note = notes[position]
-                holder.bind(note)
-                holder.view.setOnClickListener {
-                    sharedViewModel.setNotesOperation(
-                        Note(
-                            note.tittle,
-                            note.content,
-                            note.noteId,
-                            operation = UPDATE
-                        )
-                    )
-                }
-
-                holder.view.findViewById<ImageView>(R.id.menuIcon).setOnClickListener {
-                    val popupMenu = PopupMenu(it.context, it)
-                    popupMenu.menu.add("Delete").setOnMenuItemClickListener {
-                        sharedViewModel.notesOperation(
-                            Note(
-                                noteId = note.noteId,
-                                operation = DELETE
-                            )
-                        )
-                        return@setOnMenuItemClickListener false
-                    }
-                    popupMenu.show()
-                }
-            }
-
-            override fun getItemCount(): Int {
-                return notes.size
-            }
-        }
-        binding.notesList.adapter = adapter
     }
 
     override fun onStart() {
         super.onStart()
-        sharedViewModel.isNotesOperated.observe(viewLifecycleOwner, {
-            if (it) displayNotes()
+        sharedViewModel.isNoteDeleted.observe(viewLifecycleOwner, {
+            if (it) {
+                sharedViewModel.getAllNotes()
+            }
         })
-        displayNotes()
     }
 
     override fun onResume() {
