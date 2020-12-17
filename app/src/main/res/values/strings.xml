@@ -26,5 +26,6 @@
     <string name="profile_email">Profile_Email</string>
     <string name="signout">SignOut</string>
     <string name="reminders">Reminders</string>
+    <string name="search">Search</string>
 
 </resources>

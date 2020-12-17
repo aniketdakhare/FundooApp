@@ -6,13 +6,13 @@
     <data>
         <variable
             name="addNotesViewModel"
-            type="com.example.fundooapp.notes.viewmodel.NotesViewModel" />
+            type="com.example.fundooapp.notes.viewmodel.AddNoteViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".notes.view.AddNotesFragment">
+        tools:context=".notes.view.AddNoteFragment">
 
         <EditText
             android:id="@+id/editTextNotes"

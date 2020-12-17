@@ -1,10 +1,9 @@
 package com.example.fundooapp.model
 
 import android.util.Log
-import com.example.fundooapp.util.NotesOperation.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-
+import kotlin.Exception
 
 class NotesService(private val dbHelper: DBHelper) : INotesService {
 
@@ -20,56 +19,99 @@ class NotesService(private val dbHelper: DBHelper) : INotesService {
         fireStore = FirebaseFirestore.getInstance()
     }
 
-    override fun notesDbOperation(notes: Note, listener: (Boolean) -> Unit) {
-        val note: MutableMap<String, Any> = HashMap()
-        note[TITTLE] = notes.tittle
-        note[CONTENT] = notes.content
-        Log.e(notes.noteId, "saveNotesToFirebase: ")
-        when (notes.operation) {
-            ADD -> addNotes(note,notes, listener)
-            UPDATE -> updateNotes(note, notes, listener)
-            DELETE -> deleteNotes(notes, listener)
+    override fun addNotes(notes: Note, listener: (Note?, Exception?) -> Unit) {
+        firebaseAuth.currentUser?.let { user ->
+            val documentReference = fireStore.collection("users").document(user.uid)
+                .collection("Notes").document()
+            notes.noteId = documentReference.id
+            notes.userId = user.uid
+
+            Log.e(TAG, "addNotes: ${documentReference.id}")
+
+            documentReference.set(notes).addOnSuccessListener {
+                dbHelper.addNote(notes) {
+                    listener(notes, null)
+                }
+            }.addOnFailureListener{
+                listener(null, it)
+            }
         }
     }
 
-    private fun deleteNotes(note: Note, listener: (Boolean) -> Unit) {
-        fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
-            .collection("Notes").document(note.noteId).delete().addOnCompleteListener{listener(it.isSuccessful)}
-        dbHelper.deleteNote(note)
+    override fun updateNotes(notes: Note, listener: (Boolean?, Exception?) -> Unit) {
+        val note: MutableMap<String, Any> = HashMap()
+        note[TITTLE] = notes.tittle
+        note[CONTENT] = notes.content
+        fireStore.collection("users").document(notes.userId)
+            .collection("Notes").document(notes.noteId).update(note)
+            .addOnSuccessListener {
+                dbHelper.updateNote(notes) {
+                    listener(it, null)
+                }
+                }.addOnFailureListener{
+                listener(null, it)
+            }
     }
 
-    private fun updateNotes(note: MutableMap<String, Any>, notes: Note, listener: (Boolean) -> Unit) {
-        fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
-            .collection("Notes").document(notes.noteId).update(note).addOnCompleteListener{listener(it.isSuccessful)}
-        dbHelper.updateNote(notes)
+    override fun deleteNotes(note: Note, listener: (Boolean?, Exception?) -> Unit) {
+        fireStore.collection("users").document(note.userId)
+            .collection("Notes").document(note.noteId).delete()
+            .addOnSuccessListener {
+                dbHelper.deleteNote(note) {listener(it, null)}
+            }.addOnFailureListener{
+                listener(null, it)
+            }
     }
 
-    private fun addNotes(note: MutableMap<String, Any>, notes: Note, listener: (Boolean) -> Unit) {
-        fireStore.collection("users").document(firebaseAuth.currentUser!!.uid)
-            .collection("Notes").document().set(note).addOnCompleteListener{listener(it.isSuccessful)}
-        notes.userId = firebaseAuth.currentUser!!.uid
-        dbHelper.addNote(notes)
+    override fun fetchNotes(listener: (List<Note>, Exception?) -> Unit) {
+        Log.e(TAG, "fetchNotes: ")
+        firebaseAuth.currentUser?.let {
+            dbHelper.fetchNotes(it.uid) { notes ->
+                listener(notes, null)
+            }
+        }
     }
 
-    override fun fetchNotes(listener: (List<Note>) -> Unit) {
-        firebaseAuth.currentUser?.let { dbHelper.fetchNotes(listener, it.uid) }
+    private fun fetchNotesFromFireStore(listener: (List<Note>) -> Unit) {
+        firebaseAuth.currentUser?.let { it ->
+            fireStore.collection("users").document(it.uid).collection("Notes").get()
+                .addOnSuccessListener { querySnapshot ->
+                    val notes: MutableList<Note> = mutableListOf()
+                    if (querySnapshot != null) {
+                        for (document in querySnapshot) {
+                            notes.add(
+                                Note(
+                                    document.getString(TITTLE).toString(),
+                                    document.getString(CONTENT).toString(),
+                                    document.getString("noteId").toString(),
+                                    document.getString("userId").toString()
+                                )
+                            )
+                        }
+                    }
+                    Log.e(TAG, "fetchNotesFromFireStore: Success ${notes.size}")
+                    listener(notes)
+                }.addOnFailureListener { e ->
+                    listener(emptyList())
+                    Log.e(TAG, "fetchNotesFromFireStore: Fail")
+                    e.printStackTrace()
+                }
+        }
+    }
 
-//        firebaseAuth.currentUser?.let {
-//            fireStore.collection("users").document(it.uid).collection("Notes")
-//                .addSnapshotListener{ querySnapshot: QuerySnapshot?, _: FirebaseFirestoreException? ->
-//                    val notes: MutableList<Note> = mutableListOf()
-//                    if (querySnapshot != null) {
-//                        for (document in querySnapshot) {
-//                            notes.add(Note(document.getString(TITTLE).toString(), document.getString(CONTENT).toString(), document.id, userId = it.uid))
-//                        }
-//                    }
-//                    listener(notes)
-//            }
-//        }
+    override fun updateLocalDB(listener: (Boolean?, Exception?) -> Unit) {
+        dbHelper.clearNotes()
+        fetchNotesFromFireStore { notesFromFireStore ->
+            for (note in notesFromFireStore) {
+                dbHelper.addNote(note) {}
+            }
+            listener(true, null)
+        }
     }
 
     companion object {
         private const val TITTLE = "tittle"
         private const val CONTENT = "content"
+        private const val TAG = "NotesService"
     }
 }

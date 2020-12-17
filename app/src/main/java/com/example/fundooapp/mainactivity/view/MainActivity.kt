@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuItemCompat
 import androidx.databinding.DataBindingUtil
@@ -21,9 +22,11 @@ import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
-import com.example.fundooapp.notes.view.AddNotesFragment
+import com.example.fundooapp.notes.view.AddNoteFragment
 import com.example.fundooapp.profilepage.view.ProfilePage
 import com.example.fundooapp.register.view.RegisterFragment
+import com.example.fundooapp.util.NotesOperation
+import com.example.fundooapp.util.NotesOperation.*
 import com.example.fundooapp.util.ViewType.GRID
 import com.example.fundooapp.util.ViewType.LIST
 import com.example.fundooapp.viewmodel.SharedViewModel
@@ -54,7 +57,7 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         binding.contentLayout.addNotesFab.setOnClickListener {
-            sharedViewModel.setNotesOperation(Note())
+            sharedViewModel.setNoteToWrite(Pair(Note(), ADD))
         }
     }
 
@@ -93,7 +96,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun observeAppNavigation() {
         sharedViewModel.goToHomePageStatus.observe(this, {
-            if (it == true) goToHomePage()
+            if (it == true)  goToHomePage()
         })
         sharedViewModel.goToRegisterPageStatus.observe(this, {
             if (it == true) goToRegisterUserPage()
@@ -101,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         sharedViewModel.goToLoginPageStatus.observe(this, {
             if (it == true) goToLoginUserPage()
         })
-        sharedViewModel.notesOperation.observe(this, {
+        sharedViewModel.writeNote.observe(this, {
             goToNotesPage(it)
         })
     }
@@ -115,10 +118,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun goToNotesPage(note: Note) {
+    private fun goToNotesPage(note: Pair<Note, NotesOperation>) {
         binding.contentLayout.addNotesFab.hide()
         supportFragmentManager.beginTransaction().apply {
-            replace(R.id.fragmentHolder, AddNotesFragment(note))
+            replace(R.id.fragmentHolder, AddNoteFragment(note.first, note.second))
+            addToBackStack(null)
             commit()
         }
     }
@@ -153,8 +157,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.home_toolbar_menu, menu)
 
-        val menuItem = menu?.findItem(R.id.profile_menu)
-        val view = MenuItemCompat.getActionView(menuItem)
+        val profileItem = menu?.findItem(R.id.profile_menu)
+        val view = MenuItemCompat.getActionView(profileItem)
         profileImage = view.findViewById(R.id.toolbar_profile_image)
         profileImage.setOnClickListener {
             ProfilePage().show(supportFragmentManager, "User Profile")
@@ -165,6 +169,20 @@ class MainActivity : AppCompatActivity() {
         sharedViewModel.userDetails.observe(this, {
             if (it.imageUrl != "")
                 Glide.with(this).load(it.imageUrl).into(profileImage)
+        })
+
+        val searchItem = menu?.findItem(R.id.search)
+        val searchView = searchItem?.actionView as SearchView
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+               sharedViewModel.setQueryText(newText)
+                return false
+            }
+
         })
         return super.onCreateOptionsMenu(menu)
     }

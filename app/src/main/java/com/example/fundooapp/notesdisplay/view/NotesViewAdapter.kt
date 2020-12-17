@@ -8,11 +8,11 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fundooapp.R
+import com.example.fundooapp.homepage.viewmodel.HomeViewModel
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.util.NotesOperation
-import com.example.fundooapp.viewmodel.SharedViewModel
 
-class NotesViewAdapter(val notes: List<Note>, private val  sharedViewModel: SharedViewModel) : RecyclerView.Adapter<NoteViewHolder>(), Filterable {
+class NotesViewAdapter(val notes: List<Note>, private val  homeViewModel: HomeViewModel) : RecyclerView.Adapter<NoteViewHolder>(), Filterable {
 
     private val allNotes = mutableListOf<Note>().apply {
         addAll(notes)
@@ -28,22 +28,13 @@ class NotesViewAdapter(val notes: List<Note>, private val  sharedViewModel: Shar
         val note = allNotes[position]
         holder.bind(note)
         holder.view.setOnClickListener {
-            sharedViewModel.setNoteToWrite(
-                Pair(
-                    Note(
-                        note.tittle,
-                        note.content,
-                        note.noteId
-                    ),
-                    NotesOperation.UPDATE
-                )
-            )
+            homeViewModel.setNoteToWrite(Pair(note, NotesOperation.UPDATE))
         }
 
         holder.view.findViewById<ImageView>(R.id.menuIcon).setOnClickListener {
             val popupMenu = PopupMenu(it.context, it)
             popupMenu.menu.add("Delete").setOnMenuItemClickListener {
-                sharedViewModel.deleteNotes(note)
+                homeViewModel.deleteNotes(note)
                 return@setOnMenuItemClickListener false
             }
             popupMenu.show()

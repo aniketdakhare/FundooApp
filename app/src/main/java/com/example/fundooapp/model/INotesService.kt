@@ -1,6 +1,9 @@
 package com.example.fundooapp.model
 
 interface INotesService {
-    fun notesDbOperation(notes: Note, listener: (Boolean) -> Unit)
-    fun fetchNotes(listener: (List<Note>) -> Unit)
+    fun fetchNotes(listener: (List<Note>, Exception?) -> Unit)
+    fun updateLocalDB(listener: (Boolean?, Exception?) -> Unit)
+    fun deleteNotes(note: Note, listener: (Boolean?, Exception?) -> Unit)
+    fun addNotes(notes: Note, listener: (Note?, Exception?) -> Unit)
+    fun updateNotes(notes: Note, listener: (Boolean?, Exception?) -> Unit)
 }

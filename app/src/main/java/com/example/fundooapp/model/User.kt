@@ -1,7 +1,5 @@
 package com.example.fundooapp.model
 
-import android.net.Uri
-
 data class User(
     val userId: String = "",
     val firstName: String = "",
@@ -11,5 +9,4 @@ data class User(
     val confirmPassword: String = "",
     val fullName: String = "",
     val imageUrl: String = "",
-    val imageUri: Uri? = null
 )

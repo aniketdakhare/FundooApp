@@ -1,13 +1,16 @@
 package com.example.fundooapp.homepage.view
 
 import android.os.Bundle
-import android.view.*
-import androidx.appcompat.widget.SearchView
+import android.telecom.Call
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentHomeBinding
@@ -17,12 +20,15 @@ import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
-import com.example.fundooapp.notesdisplay.view.NoteViewHolder
+import com.example.fundooapp.notes.view.AddNoteFragment
 import com.example.fundooapp.notesdisplay.view.NotesViewAdapter
+import com.example.fundooapp.util.NotesOperation
+import com.example.fundooapp.util.ViewState.Success
 import com.example.fundooapp.util.ViewType
-import com.example.fundooapp.util.ViewType.*
+import com.example.fundooapp.util.ViewType.GRID
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
+
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var viewType: ViewType
@@ -31,14 +37,18 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var adapter: NotesViewAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-    ): View {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         homeViewModel = ViewModelProvider(
             this,
             HomeViewModelFactory(NotesService(DBHelper(requireContext())))
         ).get(HomeViewModel::class.java)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
         sharedViewModel = ViewModelProvider(
             requireActivity(), SharedViewModelFactory(
                 UserService(), NotesService(
@@ -54,22 +64,31 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        sharedViewModel.getAllNotes()
-        sharedViewModel.notes.observe(viewLifecycleOwner, {
-            val notes = it
-            adapter = NotesViewAdapter(notes, sharedViewModel)
-            sharedViewModel.setNotesAdapter(adapter)
-            binding.notesList.adapter = adapter
-            displayNotes()
+        homeViewModel.notesViewState.observe(viewLifecycleOwner, {
+            if (it is Success) {
+                adapter = NotesViewAdapter(it.data, homeViewModel)
+                sharedViewModel.queryText.observe(viewLifecycleOwner, { text ->
+                    adapter.filter.filter(text)
+                })
+                binding.notesList.adapter = adapter
+                displayNotes()
+            }
         })
+        homeViewModel.writeNote.observe(viewLifecycleOwner, {
+            sharedViewModel.setNoteToWrite(it)
+        })
+
     }
 
     override fun onStart() {
         super.onStart()
-        sharedViewModel.isNoteDeleted.observe(viewLifecycleOwner, {
-            if (it) {
-                sharedViewModel.getAllNotes()
-            }
+        sharedViewModel.addNoteStatus.observe(viewLifecycleOwner, {
+            if (it is Success)
+                homeViewModel.addNotes(it.data)
+        })
+        sharedViewModel.updateNoteStatus.observe(viewLifecycleOwner, {
+            if (it is Success)
+                homeViewModel.updateNotes(it.data)
         })
     }
 
@@ -86,4 +105,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             StaggeredGridLayoutManager(viewType.flag, StaggeredGridLayoutManager.VERTICAL)
         binding.notesList.adapter = adapter
     }
+
+//    private fun goToAddNotePage(note: Note, notesOperation: NotesOperation) {
+//        val fragmentManager: FragmentManager = activity!!.supportFragmentManager
+//        val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
+//        fragmentTransaction.replace(R.id.fragmentHolder, AddNoteFragment(note, notesOperation))
+//        fragmentTransaction.addToBackStack(null)
+//        fragmentTransaction.commit()
+//    }
 }

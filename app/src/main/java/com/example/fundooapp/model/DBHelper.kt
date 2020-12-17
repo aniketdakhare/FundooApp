@@ -4,46 +4,26 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 import com.example.fundooapp.model.DBContract.NotesTableContract.NOTES
 import com.example.fundooapp.model.DBContract.NotesTableContract.NOTE_CONTENT
 import com.example.fundooapp.model.DBContract.NotesTableContract.NOTE_ID
 import com.example.fundooapp.model.DBContract.NotesTableContract.NOTE_TITTLE
-import com.example.fundooapp.model.DBContract.UserTableContract.USERS
-import com.example.fundooapp.model.DBContract.UserTableContract.USER_EMAIL
 import com.example.fundooapp.model.DBContract.UserTableContract.USER_ID
-import com.example.fundooapp.model.DBContract.UserTableContract.USER_IMAGE_URI
-import com.example.fundooapp.model.DBContract.UserTableContract.USER_IMAGE_URL
-import com.example.fundooapp.model.DBContract.UserTableContract.USER_NAME
 
-class DBHelper(context: Context) : SQLiteOpenHelper(context, "User.db", null, 1) {
+class DBHelper(context: Context) : SQLiteOpenHelper(context, "FundooNotes.db", null, 1) {
 
     override fun onCreate(db: SQLiteDatabase?) {
-        val createUser =
-            "CREATE TABLE $USERS($USER_ID TEXT PRIMARY KEY, $USER_NAME TEXT, $USER_EMAIL TEXT, $USER_IMAGE_URL TEXT, $USER_IMAGE_URI TEXT)"
         val createNotes =
-            "CREATE TABLE $NOTES($USER_ID TEXT , $NOTE_ID INT PRIMARY KEY AUTOINCREMENT, $NOTE_TITTLE TEXT, $NOTE_CONTENT TEXT)"
+            "CREATE TABLE $NOTES($USER_ID TEXT , $NOTE_ID TEXT PRIMARY KEY, $NOTE_TITTLE TEXT, $NOTE_CONTENT TEXT)"
 
-        db?.execSQL(createUser)
         db?.execSQL(createNotes)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
     }
 
-    fun addUser(user: User) {
-        val db = this.writableDatabase
-        val userDetails = ContentValues()
-
-        userDetails.put(USER_ID, user.userId)
-        userDetails.put(USER_NAME, user.fullName)
-        userDetails.put(USER_EMAIL, user.email)
-        userDetails.put(USER_IMAGE_URL, user.imageUrl)
-        userDetails.put(USER_IMAGE_URI, user.imageUri.toString())
-
-        db.insert(USERS, null, userDetails)
-    }
-
-    fun addNote(note: Note) {
+    fun addNote(note: Note, listener: (Boolean) -> Unit) {
         val db = this.writableDatabase
         val noteDetails = ContentValues()
 
@@ -52,27 +32,62 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "User.db", null, 1)
         noteDetails.put(NOTE_TITTLE, note.tittle)
         noteDetails.put(NOTE_CONTENT, note.content)
 
-        db.insert(NOTES, null, noteDetails)
+        val insertCheck = db.insert(NOTES, null, noteDetails)
+        if (insertCheck.toInt() == -1) {
+            listener(false)
+        }
+        else listener(true)
+        Log.e("DBHelper", "addNote: inserted" )
         db.close()
     }
 
-    fun updateNote(note: Note) {
+    fun updateNote(note: Note, listener: (Boolean) -> Unit) {
         val db = this.writableDatabase
-        val query = "UPDATE $NOTES SET $NOTE_TITTLE = ${note.tittle}, $NOTE_CONTENT = ${note.content} WHERE $NOTE_ID = \"${note.dbNoteId}\""
-        val cursor = db.rawQuery(query, null)
-        cursor.close()
+        val noteDetails = ContentValues()
+
+//        val query = "UPDATE $NOTES SET $NOTE_TITTLE = \"${note.tittle}\", $NOTE_CONTENT = \"${note.content}\"" +
+//                " WHERE $NOTE_ID = \"${note.noteId}\" AND $USER_ID = \"${note.userId}\""
+////        val cursor = db.rawQuery(query, null)
+//
+//        if (cursor.moveToFirst()) listener(true)
+//        else listener(false)
+
+        noteDetails.put(NOTE_TITTLE, note.tittle)
+        noteDetails.put(NOTE_CONTENT, note.content)
+
+        val updateCheck = db.update(NOTES, noteDetails, "$NOTE_ID = \"${note.noteId}\" AND $USER_ID = \"${note.userId}\"", null)
+        if (updateCheck > 0)  {
+            listener(true)
+            Log.e("DBHelper", "Update: true", )
+        }
+        else {
+            listener(false)
+            Log.e("DBHelper", "Update: False", )
+        }
+
+//        cursor.close()
         db.close()
     }
 
-    fun deleteNote(note: Note) {
+    fun deleteNote(note: Note,  listener: (Boolean) -> Unit) {
         val db = this.writableDatabase
-        val query = "DELETE FROM $NOTES WHERE $NOTE_TITTLE = \"${note.tittle}\""
-        val cursor = db.rawQuery(query, null)
-        cursor.close()
+
+        val deleteCheck = db.delete(NOTES, "$NOTE_ID = \"${note.noteId}\"", null)
+        if (deleteCheck > 0)
+//        val query = "DELETE FROM $NOTES WHERE $NOTE_ID = \"${note.noteId}\""
+//        val cursor = db.rawQuery(query, null)
+//
+//        if (cursor.moveToFirst())
+        {listener(true)
+            Log.e("DBHelper", "Delete: true", )
+        }
+        else {listener(false)
+            Log.e("DBHelper", "Delete: False", )
+        }
         db.close()
     }
 
-    fun fetchNotes(listener: (List<Note>) -> Unit, uid: String) {
+    fun fetchNotes(uid: String, listener: (MutableList<Note>) -> Unit) {
         val notes: MutableList<Note> = mutableListOf()
 
         val query = "SELECT * FROM $NOTES WHERE $USER_ID = \"$uid\""
@@ -81,17 +96,37 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "User.db", null, 1)
 
         if (cursor.moveToFirst()) {
             do {
+                Log.e("DBHelper", "fetchNotes: Inside While loop", )
                 notes.add(Note(
                     userId = cursor.getString(0),
-                    dbNoteId = cursor.getInt(1),
+                    noteId = cursor.getString(1),
                     tittle = cursor.getString(2),
                     content = cursor.getString(3)
                 ))
             }while (cursor.moveToNext())
             listener(notes)
         }
+        else {
+            Log.e("DBHelper", "fetchNotes: else part", )
 
+            listener(notes)
+        }
+
+        Log.e("DBHelper", "fetchNotes: ", )
         cursor.close()
+        db.close()
+    }
+
+    fun clearNotes() {
+        val db = this.writableDatabase
+        val query = "DELETE FROM $NOTES"
+
+            db.execSQL(query)
+//        val check = db.delete(NOTES, null, null)
+//        Log.e("DBHelper", "clear Notes: $check" )
+
+//        if (check > 0) listener(true)
+//        else listener(false)
         db.close()
     }
 }

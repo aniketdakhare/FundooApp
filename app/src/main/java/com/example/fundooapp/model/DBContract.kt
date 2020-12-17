@@ -7,7 +7,6 @@ interface DBContract {
         const val USER_NAME = "User_Name"
         const val USER_EMAIL = "Email_ID"
         const val USER_IMAGE_URL = "Profile_Image_Url"
-        const val USER_IMAGE_URI = "Profile_Image_Uri"
     }
 
     object NotesTableContract {

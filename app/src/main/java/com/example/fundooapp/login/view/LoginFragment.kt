@@ -110,9 +110,12 @@ class LoginFragment : Fragment() {
     private fun loginUser(message: String) {
         sharedViewModel.fetchUserDetails()
         sharedViewModel.userDetails.observe(viewLifecycleOwner, {
-            binding.loginProgressBar.visibility = View.GONE
-            sharedViewModel.setGoToHomePageStatus(true)
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+//            sharedViewModel.notesUpdateStatus.observe(viewLifecycleOwner, { status ->
+//                if (status) {
+                    binding.loginProgressBar.visibility = View.GONE
+                    sharedViewModel.setGoToHomePageStatus(true)
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+//                }})
         })
     }
 
