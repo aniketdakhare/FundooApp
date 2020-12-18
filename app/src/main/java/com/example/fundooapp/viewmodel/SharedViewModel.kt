@@ -21,6 +21,9 @@ class SharedViewModel(
         fetchUserDetails()
     }
 
+    private val _showAddNoteFab = MutableLiveData<Boolean>()
+    val showAddNoteFab = _showAddNoteFab as LiveData<Boolean>
+
     private val _goToRegisterPageStatus = MutableLiveData<Boolean>()
     val goToRegisterPageStatus = _goToRegisterPageStatus as LiveData<Boolean>
 
@@ -59,7 +62,7 @@ class SharedViewModel(
         _queryText.value = string
     }
 
-    fun setNoteToWrite(note: Pair<Note, NotesOperation>) {
+    fun setNoteToWrite(note: Pair<Note, NotesOperation>?) {
         _writeNote.value = note
     }
 
@@ -96,4 +99,9 @@ class SharedViewModel(
     fun setUpdateNoteStatus(state: ViewState<Note>?) {
         _updateNoteStatus.value = state
     }
+
+    fun setAddNoteFab(status: Boolean) {
+        _showAddNoteFab.value = status
+    }
+
 }

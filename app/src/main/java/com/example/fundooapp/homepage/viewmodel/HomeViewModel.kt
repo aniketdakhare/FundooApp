@@ -7,7 +7,6 @@ import com.example.fundooapp.model.INotesService
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.util.NotesOperation
 import com.example.fundooapp.util.ViewState
-import com.example.fundooapp.util.ViewType
 
 class HomeViewModel(private val notesService: INotesService) : ViewModel() {
 
@@ -28,30 +27,34 @@ class HomeViewModel(private val notesService: INotesService) : ViewModel() {
         notesService.deleteNotes(noteDetails) { status: Boolean?, exception: Exception? ->
             if (status == true) {
                 val filter = _notes.filter {
-                    it.noteId === noteDetails.noteId
+                    it.noteId == noteDetails.noteId
                 }
-                _notesViewState.value = ViewState.Success(_notes - filter)
+                _notes = _notes - filter
+                _notesViewState.value = ViewState.Success(_notes)
             }
         }
     }
 
     fun addNotes(note: Note) {
         note.let {
-            _notesViewState.value = ViewState.Success(_notes + note)
+            _notes = _notes + note
+            _notesViewState.value = ViewState.Success(_notes)
         }
     }
 
     fun updateNotes(note: Note) {
         val filter = _notes.filter {
-            it.noteId === note.noteId
+            it.noteId == note.noteId
         }
 
         if (filter.isNotEmpty()) {
-            _notesViewState.value = ViewState.Success((_notes - filter[0]) + note)
+            val list = _notes - filter[0]
+            _notes = list + note
+            _notesViewState.value = ViewState.Success(_notes)
         }
     }
 
-    fun setNoteToWrite(note: Pair<Note, NotesOperation>) {
+    fun setNoteToWrite(note: Pair<Note, NotesOperation>?) {
         _writeNote.value = note
     }
 

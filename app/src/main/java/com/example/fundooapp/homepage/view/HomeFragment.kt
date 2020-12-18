@@ -1,15 +1,12 @@
 package com.example.fundooapp.homepage.view
 
 import android.os.Bundle
-import android.telecom.Call
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.fundooapp.R
@@ -17,12 +14,9 @@ import com.example.fundooapp.databinding.FragmentHomeBinding
 import com.example.fundooapp.homepage.viewmodel.HomeViewModel
 import com.example.fundooapp.homepage.viewmodel.HomeViewModelFactory
 import com.example.fundooapp.model.DBHelper
-import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
-import com.example.fundooapp.notes.view.AddNoteFragment
 import com.example.fundooapp.notesdisplay.view.NotesViewAdapter
-import com.example.fundooapp.util.NotesOperation
 import com.example.fundooapp.util.ViewState.Success
 import com.example.fundooapp.util.ViewType
 import com.example.fundooapp.util.ViewType.GRID
@@ -75,7 +69,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
         })
         homeViewModel.writeNote.observe(viewLifecycleOwner, {
-            sharedViewModel.setNoteToWrite(it)
+            it?.apply {
+                Log.e(Companion.TAG, "onViewCreated: ", )
+                sharedViewModel.setNoteToWrite(it)
+            }
         })
 
     }
@@ -94,7 +91,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onResume() {
         super.onResume()
-        sharedViewModel.notesDisplayType.observe(viewLifecycleOwner, Observer {
+        sharedViewModel.notesDisplayType.observe(viewLifecycleOwner, {
             this.viewType = it
             displayNotes()
         })
@@ -106,11 +103,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.notesList.adapter = adapter
     }
 
-//    private fun goToAddNotePage(note: Note, notesOperation: NotesOperation) {
-//        val fragmentManager: FragmentManager = activity!!.supportFragmentManager
-//        val fragmentTransaction: FragmentTransaction = fragmentManager.beginTransaction()
-//        fragmentTransaction.replace(R.id.fragmentHolder, AddNoteFragment(note, notesOperation))
-//        fragmentTransaction.addToBackStack(null)
-//        fragmentTransaction.commit()
-//    }
+    companion object {
+        private const val TAG = "HomeFragment"
+    }
 }

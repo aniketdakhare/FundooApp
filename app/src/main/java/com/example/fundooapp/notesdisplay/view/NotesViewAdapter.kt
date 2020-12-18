@@ -11,6 +11,7 @@ import com.example.fundooapp.R
 import com.example.fundooapp.homepage.viewmodel.HomeViewModel
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.util.NotesOperation
+import com.example.fundooapp.util.NotesOperation.*
 
 class NotesViewAdapter(val notes: List<Note>, private val  homeViewModel: HomeViewModel) : RecyclerView.Adapter<NoteViewHolder>(), Filterable {
 
@@ -28,7 +29,7 @@ class NotesViewAdapter(val notes: List<Note>, private val  homeViewModel: HomeVi
         val note = allNotes[position]
         holder.bind(note)
         holder.view.setOnClickListener {
-            homeViewModel.setNoteToWrite(Pair(note, NotesOperation.UPDATE))
+            homeViewModel.setNoteToWrite(Pair(note, UPDATE))
         }
 
         holder.view.findViewById<ImageView>(R.id.menuIcon).setOnClickListener {

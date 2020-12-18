@@ -35,9 +35,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "FundooNotes.db", n
         val insertCheck = db.insert(NOTES, null, noteDetails)
         if (insertCheck.toInt() == -1) {
             listener(false)
-        }
-        else listener(true)
-        Log.e("DBHelper", "addNote: inserted" )
+        } else listener(true)
+        Log.e("DBHelper", "addNote: inserted")
         db.close()
     }
 
@@ -45,44 +44,36 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "FundooNotes.db", n
         val db = this.writableDatabase
         val noteDetails = ContentValues()
 
-//        val query = "UPDATE $NOTES SET $NOTE_TITTLE = \"${note.tittle}\", $NOTE_CONTENT = \"${note.content}\"" +
-//                " WHERE $NOTE_ID = \"${note.noteId}\" AND $USER_ID = \"${note.userId}\""
-////        val cursor = db.rawQuery(query, null)
-//
-//        if (cursor.moveToFirst()) listener(true)
-//        else listener(false)
-
         noteDetails.put(NOTE_TITTLE, note.tittle)
         noteDetails.put(NOTE_CONTENT, note.content)
 
-        val updateCheck = db.update(NOTES, noteDetails, "$NOTE_ID = \"${note.noteId}\" AND $USER_ID = \"${note.userId}\"", null)
-        if (updateCheck > 0)  {
+        val updateCheck = db.update(
+            NOTES,
+            noteDetails,
+            "$NOTE_ID = \"${note.noteId}\" AND $USER_ID = \"${note.userId}\"",
+            null
+        )
+        if (updateCheck > 0) {
             listener(true)
-            Log.e("DBHelper", "Update: true", )
-        }
-        else {
+            Log.e("DBHelper", "Update: true")
+        } else {
             listener(false)
-            Log.e("DBHelper", "Update: False", )
+            Log.e("DBHelper", "Update: False")
         }
 
-//        cursor.close()
         db.close()
     }
 
-    fun deleteNote(note: Note,  listener: (Boolean) -> Unit) {
+    fun deleteNote(note: Note, listener: (Boolean) -> Unit) {
         val db = this.writableDatabase
 
         val deleteCheck = db.delete(NOTES, "$NOTE_ID = \"${note.noteId}\"", null)
-        if (deleteCheck > 0)
-//        val query = "DELETE FROM $NOTES WHERE $NOTE_ID = \"${note.noteId}\""
-//        val cursor = db.rawQuery(query, null)
-//
-//        if (cursor.moveToFirst())
-        {listener(true)
-            Log.e("DBHelper", "Delete: true", )
-        }
-        else {listener(false)
-            Log.e("DBHelper", "Delete: False", )
+        if (deleteCheck > 0) {
+            listener(true)
+            Log.e("DBHelper", "Delete: true")
+        } else {
+            listener(false)
+            Log.e("DBHelper", "Delete: False")
         }
         db.close()
     }
@@ -96,23 +87,24 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "FundooNotes.db", n
 
         if (cursor.moveToFirst()) {
             do {
-                Log.e("DBHelper", "fetchNotes: Inside While loop", )
-                notes.add(Note(
-                    userId = cursor.getString(0),
-                    noteId = cursor.getString(1),
-                    tittle = cursor.getString(2),
-                    content = cursor.getString(3)
-                ))
-            }while (cursor.moveToNext())
+                Log.e("DBHelper", "fetchNotes: Inside While loop")
+                notes.add(
+                    Note(
+                        userId = cursor.getString(0),
+                        noteId = cursor.getString(1),
+                        tittle = cursor.getString(2),
+                        content = cursor.getString(3)
+                    )
+                )
+            } while (cursor.moveToNext())
             listener(notes)
-        }
-        else {
-            Log.e("DBHelper", "fetchNotes: else part", )
+        } else {
+            Log.e("DBHelper", "fetchNotes: else part")
 
             listener(notes)
         }
 
-        Log.e("DBHelper", "fetchNotes: ", )
+        Log.e("DBHelper", "fetchNotes: ")
         cursor.close()
         db.close()
     }
@@ -121,12 +113,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "FundooNotes.db", n
         val db = this.writableDatabase
         val query = "DELETE FROM $NOTES"
 
-            db.execSQL(query)
-//        val check = db.delete(NOTES, null, null)
-//        Log.e("DBHelper", "clear Notes: $check" )
-
-//        if (check > 0) listener(true)
-//        else listener(false)
+        db.execSQL(query)
         db.close()
     }
 }

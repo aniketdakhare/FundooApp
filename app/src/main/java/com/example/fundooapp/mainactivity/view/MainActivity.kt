@@ -1,6 +1,7 @@
 package com.example.fundooapp.mainactivity.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -96,7 +97,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun observeAppNavigation() {
         sharedViewModel.goToHomePageStatus.observe(this, {
-            if (it == true)  goToHomePage()
+            if (it == true) goToHomePage()
         })
         sharedViewModel.goToRegisterPageStatus.observe(this, {
             if (it == true) goToRegisterUserPage()
@@ -105,7 +106,12 @@ class MainActivity : AppCompatActivity() {
             if (it == true) goToLoginUserPage()
         })
         sharedViewModel.writeNote.observe(this, {
-            goToNotesPage(it)
+            Log.e("Main", "observeAppNavigation: 09", )
+            it?.apply {
+            goToNotesPage(it) }
+        })
+        sharedViewModel.showAddNoteFab.observe(this, {
+            operateAddNoteFab(it)
         })
     }
 
@@ -119,7 +125,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun goToNotesPage(note: Pair<Note, NotesOperation>) {
-        binding.contentLayout.addNotesFab.hide()
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragmentHolder, AddNoteFragment(note.first, note.second))
             addToBackStack(null)
@@ -173,13 +178,13 @@ class MainActivity : AppCompatActivity() {
 
         val searchItem = menu?.findItem(R.id.search)
         val searchView = searchItem?.actionView as SearchView
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener{
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-               sharedViewModel.setQueryText(newText)
+                sharedViewModel.setQueryText(newText)
                 return false
             }
 
@@ -204,5 +209,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun operateAddNoteFab(status: Boolean) {
+        when (status) {
+            true -> binding.contentLayout.addNotesFab.show()
+            false -> binding.contentLayout.addNotesFab.hide()
+        }
     }
 }
