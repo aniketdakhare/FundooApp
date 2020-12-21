@@ -1,36 +1,40 @@
-package com.example.fundooapp.notes.view
+package com.example.fundooapp.addnotes.view
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import com.example.fundooapp.R
-import com.example.fundooapp.notes.viewmodel.AddNoteViewModel
-import com.example.fundooapp.notes.viewmodel.AddNoteViewModelFactory
+import com.example.fundooapp.addnotes.viewmodel.AddNoteViewModel
+import com.example.fundooapp.addnotes.viewmodel.AddNoteViewModelFactory
 import com.example.fundooapp.databinding.AddNotesFragmentBinding
 import com.example.fundooapp.model.DBHelper
-import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
+import com.example.fundooapp.remindersettings.view.SetReminderFragment
 import com.example.fundooapp.util.NotesOperation
-import com.example.fundooapp.util.NotesOperation.*
-import com.example.fundooapp.util.ViewState
+import com.example.fundooapp.util.NotesOperation.ADD
+import com.example.fundooapp.util.NotesOperation.UPDATE
 import com.example.fundooapp.util.ViewState.Success
+import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.android.synthetic.main.main_content_layout.*
 
 class AddNoteFragment(private val note: Note, private val operation: NotesOperation) : Fragment() {
 
     private lateinit var addNoteViewModel: AddNoteViewModel
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var binding: AddNotesFragmentBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -48,6 +52,7 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
             )
         )[SharedViewModel::class.java]
         sharedViewModel.setNoteToWrite(null)
+        sharedViewModel.setAddNoteFab(false)
         binding.addNotesViewModel = addNoteViewModel
         binding.lifecycleOwner = this
         return binding.root
@@ -55,6 +60,7 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         addNoteViewModel.addNoteStatus.observe(viewLifecycleOwner, {
             if (it is Success) {
                 sharedViewModel.setAddNoteStatus(it)
@@ -92,14 +98,32 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
         binding.editTextTittle.setText(note.tittle)
         binding.editTextNotes.setText(note.content)
         saveNotes()
-        (activity as AppCompatActivity).supportActionBar?.hide()
-        sharedViewModel.setAddNoteFab(false)
     }
 
     override fun onStop() {
         super.onStop()
-        (activity as AppCompatActivity).supportActionBar?.show()
         sharedViewModel.setAddNoteFab(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.add_note_toolbar_menu, menu)
+        addNoteToolbarMenu()
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.addReminder) {
+            SetReminderFragment(note.tittle, note.content).show((requireActivity() as AppCompatActivity).supportFragmentManager, "Reminder")
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun addNoteToolbarMenu() {
+        (activity as AppCompatActivity).supportActionBar?.title = ""
+
+        (activity as AppCompatActivity).toolbar.setNavigationOnClickListener {
+            (activity as AppCompatActivity).supportFragmentManager.popBackStack()
+        }
     }
 
     companion object {

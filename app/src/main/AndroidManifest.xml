@@ -42,6 +42,8 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name=".remindersettings.model.ReminderReceiver" />
+
     </application>
 
     <queries>

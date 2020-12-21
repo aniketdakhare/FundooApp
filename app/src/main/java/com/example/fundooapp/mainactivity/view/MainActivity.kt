@@ -12,6 +12,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuItemCompat
 import androidx.databinding.DataBindingUtil
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.fundooapp.R
@@ -23,7 +24,7 @@ import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
-import com.example.fundooapp.notes.view.AddNoteFragment
+import com.example.fundooapp.addnotes.view.AddNoteFragment
 import com.example.fundooapp.profilepage.view.ProfilePage
 import com.example.fundooapp.register.view.RegisterFragment
 import com.example.fundooapp.util.NotesOperation
@@ -34,6 +35,7 @@ import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 import com.google.android.material.navigation.NavigationView
 import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.android.synthetic.main.main_content_layout.*
 import kotlinx.android.synthetic.main.main_content_layout.view.*
 
 class MainActivity : AppCompatActivity() {
@@ -42,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var profileImage: CircleImageView
     private lateinit var toggle: ActionBarDrawerToggle
     private var viewType = LIST
-
+    private var menuStatus = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +52,6 @@ class MainActivity : AppCompatActivity() {
         initActivity()
         setSupportActionBar(binding.contentLayout.toolbar)
         binding.contentLayout.toolbar.showOverflowMenu()
-        setNavigationDrawer()
         goToStartAppPage()
         observeAppNavigation()
     }
@@ -111,6 +112,7 @@ class MainActivity : AppCompatActivity() {
             goToNotesPage(it) }
         })
         sharedViewModel.showAddNoteFab.observe(this, {
+            menuStatus = it
             operateAddNoteFab(it)
         })
     }
@@ -160,8 +162,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.home_toolbar_menu, menu)
+        if (menuStatus) {
+            menuInflater.inflate(R.menu.home_toolbar_menu, menu)
+            homeToolbarMenu(menu)
+        }
+        return super.onCreateOptionsMenu(menu)
+    }
 
+    private fun homeToolbarMenu(menu: Menu?) {
+        setNavigationDrawer()
+
+        supportActionBar?.title = "Fundoo"
         val profileItem = menu?.findItem(R.id.profile_menu)
         val view = MenuItemCompat.getActionView(profileItem)
         profileImage = view.findViewById(R.id.toolbar_profile_image)
@@ -189,7 +200,6 @@ class MainActivity : AppCompatActivity() {
             }
 
         })
-        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -207,14 +217,24 @@ class MainActivity : AppCompatActivity() {
                 }
                 sharedViewModel.setNotesDisplayType(viewType)
             }
+            R.id.addReminder -> {
+                Toast.makeText(this, "Add Reminder", Toast.LENGTH_SHORT).show()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
 
     private fun operateAddNoteFab(status: Boolean) {
         when (status) {
-            true -> binding.contentLayout.addNotesFab.show()
-            false -> binding.contentLayout.addNotesFab.hide()
+            true -> {
+                binding.contentLayout.addNotesFab.show()
+                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            }
+            false -> {
+                binding.contentLayout.addNotesFab.hide()
+                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+            }
         }
     }
 }

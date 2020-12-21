@@ -1,4 +1,4 @@
-package com.example.fundooapp.notes.viewmodel
+package com.example.fundooapp.addnotes.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

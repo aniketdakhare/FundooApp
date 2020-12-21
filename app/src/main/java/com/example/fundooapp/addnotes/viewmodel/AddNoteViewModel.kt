@@ -1,4 +1,4 @@
-package com.example.fundooapp.notes.viewmodel
+package com.example.fundooapp.addnotes.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.LiveData

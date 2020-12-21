@@ -24,7 +24,6 @@
         android:background="@drawable/toolbar_background"
         android:minHeight="?attr/actionBarSize"
         android:theme="@style/ThemeOverlay.AppCompat.Dark"
-        app:title="Fundoo"
         app:layout_scrollFlags="scroll|enterAlways"/>
 
     </com.google.android.material.appbar.AppBarLayout>

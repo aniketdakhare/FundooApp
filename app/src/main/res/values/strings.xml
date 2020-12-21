@@ -27,5 +27,13 @@
     <string name="signout">SignOut</string>
     <string name="reminders">Reminders</string>
     <string name="search">Search</string>
+    <string name="note">Note</string>
+    <string name="backButton">back</string>
+    <string name="addReminder">addReminder</string>
+    <string name="set_reminder">Set Reminder</string>
+    <string name="select_time">Select Time</string>
+    <string name="time">Time</string>
+    <string name="select_date">Select Date</string>
+    <string name="date">Date</string>
 
 </resources>

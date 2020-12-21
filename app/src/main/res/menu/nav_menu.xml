@@ -2,6 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:id="@+id/notify_menu"
-        android:icon="@drawable/ic_baseline_notifications_24"
+        android:icon="@drawable/ic_notify"
         android:title="@string/reminders" />
 </menu>

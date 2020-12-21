@@ -6,32 +6,13 @@
     <data>
         <variable
             name="addNotesViewModel"
-            type="com.example.fundooapp.notes.viewmodel.AddNoteViewModel" />
+            type="com.example.fundooapp.addnotes.viewmodel.AddNoteViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".notes.view.AddNoteFragment">
-
-        <EditText
-            android:id="@+id/editTextNotes"
-            android:layout_width="382dp"
-            android:layout_height="581dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            android:background="#FFFFFF"
-            android:bufferType="editable"
-            android:ems="10"
-            android:gravity="start|top"
-            android:hint="Note"
-            android:inputType="textMultiLine"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTittle" />
+        tools:context=".addnotes.view.AddNoteFragment">
 
         <EditText
             android:id="@+id/editTextTittle"
@@ -50,6 +31,26 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
+
+        <EditText
+            android:id="@+id/editTextNotes"
+            android:layout_width="382dp"
+            android:layout_height="552dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="#FFFFFF"
+            android:bufferType="editable"
+            android:ems="10"
+            android:gravity="start|top"
+            android:hint="@string/note"
+            android:inputType="textMultiLine"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextTittle" />
+
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/saveNotesFab"

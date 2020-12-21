@@ -23,7 +23,6 @@ import com.example.fundooapp.util.ViewType.GRID
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 
-
 class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var viewType: ViewType
     private lateinit var homeViewModel: HomeViewModel
@@ -31,8 +30,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var adapter: NotesViewAdapter
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         homeViewModel = ViewModelProvider(
             this,
             HomeViewModelFactory(NotesService(DBHelper(requireContext())))
@@ -74,7 +75,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 sharedViewModel.setNoteToWrite(it)
             }
         })
-
     }
 
     override fun onStart() {
