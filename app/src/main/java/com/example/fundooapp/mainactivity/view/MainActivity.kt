@@ -35,6 +35,7 @@ import com.example.fundooapp.viewmodel.NotesSharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.messaging.FirebaseMessaging
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.main_content_layout.*
 import kotlinx.android.synthetic.main.main_content_layout.view.*
@@ -56,6 +57,7 @@ class MainActivity : AppCompatActivity() {
         binding.contentLayout.toolbar.showOverflowMenu()
         goToStartAppPage()
         observeAppNavigation()
+        FirebaseMessaging.getInstance().subscribeToTopic("FundooNotes")
     }
 
     override fun onStart() {

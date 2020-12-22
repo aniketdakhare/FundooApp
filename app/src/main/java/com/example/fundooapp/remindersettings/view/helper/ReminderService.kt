@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import com.example.fundooapp.model.Note
+import com.example.fundooapp.notification.localnotification.ReminderReceiver
 import java.util.*
 
 class ReminderService(val context: Context) {

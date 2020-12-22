@@ -1,4 +1,4 @@
-package com.example.fundooapp.remindersettings.view.helper
+package com.example.fundooapp.notification.localnotification
 
 import android.content.BroadcastReceiver
 import android.content.Context
