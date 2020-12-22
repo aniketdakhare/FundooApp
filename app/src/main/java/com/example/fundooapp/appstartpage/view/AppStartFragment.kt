@@ -53,13 +53,9 @@ class AppStartFragment : Fragment() {
         appStartViewModel.isUserLoggedIn.observe(viewLifecycleOwner, {
             when (it) {
                 true -> {
-//                    sharedViewModel.updateNotes()
-//                    sharedViewModel.notesUpdateStatus.observe(viewLifecycleOwner, { status ->
-//                        if (status) {
-                        sharedViewModel.setGoToHomePageStatus(true)
-                        binding.appStartProgressbar.visibility = View.GONE }
-//                    })
-//                }
+                    sharedViewModel.setGoToHomePageStatus(true)
+                    binding.appStartProgressbar.visibility = View.GONE
+                }
                 false -> {
                     sharedViewModel.setGoToLoginPageStatus(true)
                     binding.appStartProgressbar.visibility = View.GONE

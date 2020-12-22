@@ -35,5 +35,6 @@
     <string name="time">Time</string>
     <string name="select_date">Select Date</string>
     <string name="date">Date</string>
+    <string name="notes">Notes</string>
 
 </resources>

@@ -42,7 +42,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".remindersettings.model.ReminderReceiver" />
+        <receiver android:name=".remindersettings.view.helper.ReminderReceiver"   />
 
     </application>
 

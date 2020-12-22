@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/notify_menu"
+    <item android:id="@+id/notes"
+        android:icon="@drawable/ic_baseline_event_note_24"
+        android:title="@string/notes" />
+
+    <item android:id="@+id/reminder_list"
         android:icon="@drawable/ic_notify"
         android:title="@string/reminders" />
 </menu>

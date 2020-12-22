@@ -84,9 +84,11 @@ class NotesService(private val dbHelper: DBHelper) : INotesService {
                                     document.getString(TITTLE).toString(),
                                     document.getString(CONTENT).toString(),
                                     document.getString("noteId").toString(),
-                                    document.getString("userId").toString()
+                                    document.getString("userId").toString(),
+                                    document.getLong("reminderTime")!!
                                 )
                             )
+                            Log.e(TAG, "fetchNotesFromFireStore: ${document.getLong("reminderTime")!!}", )
                         }
                     }
                     Log.e(TAG, "fetchNotesFromFireStore: Success ${notes.size}")

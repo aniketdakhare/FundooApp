@@ -9,13 +9,14 @@ import com.example.fundooapp.model.DBContract.NotesTableContract.NOTES
 import com.example.fundooapp.model.DBContract.NotesTableContract.NOTE_CONTENT
 import com.example.fundooapp.model.DBContract.NotesTableContract.NOTE_ID
 import com.example.fundooapp.model.DBContract.NotesTableContract.NOTE_TITTLE
+import com.example.fundooapp.model.DBContract.NotesTableContract.REMINDER_TIME
 import com.example.fundooapp.model.DBContract.UserTableContract.USER_ID
 
-class DBHelper(context: Context) : SQLiteOpenHelper(context, "FundooNotes.db", null, 1) {
+class DBHelper(context: Context) : SQLiteOpenHelper(context, "FunNotes.db", null, 1) {
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createNotes =
-            "CREATE TABLE $NOTES($USER_ID TEXT , $NOTE_ID TEXT PRIMARY KEY, $NOTE_TITTLE TEXT, $NOTE_CONTENT TEXT)"
+            "CREATE TABLE $NOTES($USER_ID TEXT , $NOTE_ID TEXT PRIMARY KEY, $NOTE_TITTLE TEXT, $NOTE_CONTENT TEXT, $REMINDER_TIME INTEGER)"
 
         db?.execSQL(createNotes)
     }
@@ -31,6 +32,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "FundooNotes.db", n
         noteDetails.put(NOTE_ID, note.noteId)
         noteDetails.put(NOTE_TITTLE, note.tittle)
         noteDetails.put(NOTE_CONTENT, note.content)
+        noteDetails.put(REMINDER_TIME, note.reminderTime)
 
         val insertCheck = db.insert(NOTES, null, noteDetails)
         if (insertCheck.toInt() == -1) {
@@ -93,7 +95,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context, "FundooNotes.db", n
                         userId = cursor.getString(0),
                         noteId = cursor.getString(1),
                         tittle = cursor.getString(2),
-                        content = cursor.getString(3)
+                        content = cursor.getString(3),
+                        reminderTime = cursor.getLong(4)
                     )
                 )
             } while (cursor.moveToNext())

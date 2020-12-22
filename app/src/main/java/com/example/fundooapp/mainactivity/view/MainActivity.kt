@@ -31,6 +31,7 @@ import com.example.fundooapp.util.NotesOperation
 import com.example.fundooapp.util.NotesOperation.*
 import com.example.fundooapp.util.ViewType.GRID
 import com.example.fundooapp.util.ViewType.LIST
+import com.example.fundooapp.viewmodel.NotesSharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 import com.google.android.material.navigation.NavigationView
@@ -40,6 +41,7 @@ import kotlinx.android.synthetic.main.main_content_layout.view.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var notesSharedViewModel: NotesSharedViewModel
     private lateinit var binding: ActivityMainBinding
     private lateinit var profileImage: CircleImageView
     private lateinit var toggle: ActionBarDrawerToggle
@@ -76,8 +78,8 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
         binding.navigationDrawer.setNavigationItemSelectedListener(NavigationView.OnNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.notify_menu -> {
-                    Toast.makeText(this, "Reminders menu selected", Toast.LENGTH_SHORT).show()
+                R.id.reminder_list -> {
+
                     binding.drawer.closeDrawer(GravityCompat.START)
                 }
             }
@@ -94,6 +96,7 @@ class MainActivity : AppCompatActivity() {
                 )
             )
         )[SharedViewModel::class.java]
+        notesSharedViewModel = ViewModelProvider(this)[NotesSharedViewModel::class.java]
     }
 
     private fun observeAppNavigation() {

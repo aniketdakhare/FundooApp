@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,7 @@ import com.example.fundooapp.util.NotesOperation
 import com.example.fundooapp.util.NotesOperation.ADD
 import com.example.fundooapp.util.NotesOperation.UPDATE
 import com.example.fundooapp.util.ViewState.Success
+import com.example.fundooapp.viewmodel.NotesSharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 import kotlinx.android.synthetic.main.main_content_layout.*
@@ -29,6 +31,7 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
 
     private lateinit var addNoteViewModel: AddNoteViewModel
     private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var notesSharedViewModel: NotesSharedViewModel
     private lateinit var binding: AddNotesFragmentBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,6 +54,7 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
                 )
             )
         )[SharedViewModel::class.java]
+        notesSharedViewModel = ViewModelProvider(requireActivity())[NotesSharedViewModel::class.java]
         sharedViewModel.setNoteToWrite(null)
         sharedViewModel.setAddNoteFab(false)
         binding.addNotesViewModel = addNoteViewModel
@@ -80,12 +84,13 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
 
             }
         })
+        notesSharedViewModel.reminderTime.observe(viewLifecycleOwner, {
+            note.reminderTime = it.timeInMillis
+        })
     }
 
     private fun saveNotes() {
         binding.saveNotesFab.setOnClickListener {
-            note.tittle = binding.editTextTittle.text.toString()
-            note.content = binding.editTextNotes.text.toString()
             when (operation) {
                 ADD -> addNoteViewModel.addNotes(note)
                 UPDATE -> addNoteViewModel.updateNotes(note)
@@ -97,6 +102,12 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
         super.onResume()
         binding.editTextTittle.setText(note.tittle)
         binding.editTextNotes.setText(note.content)
+        binding.editTextTittle.doOnTextChanged { text, _, _, _ ->
+            note.tittle = text.toString()
+        }
+        binding.editTextNotes.doOnTextChanged { text, _, _, _ ->
+            note.content = text.toString()
+        }
         saveNotes()
     }
 
@@ -113,7 +124,7 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.addReminder) {
-            SetReminderFragment(note.tittle, note.content).show((requireActivity() as AppCompatActivity).supportFragmentManager, "Reminder")
+            SetReminderFragment(note).show((requireActivity() as AppCompatActivity).supportFragmentManager, "Reminder")
         }
         return super.onOptionsItemSelected(item)
     }

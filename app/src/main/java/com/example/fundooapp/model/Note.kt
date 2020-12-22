@@ -5,4 +5,5 @@ class Note(
     var content: String = "",
     var noteId: String = "",
     var userId: String = "",
+    var reminderTime: Long = 0
 )

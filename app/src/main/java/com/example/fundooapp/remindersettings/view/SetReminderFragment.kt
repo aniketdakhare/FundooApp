@@ -13,18 +13,15 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentSetReminderBinding
-import com.example.fundooapp.model.DBHelper
-import com.example.fundooapp.model.NotesService
-import com.example.fundooapp.remindersettings.viewmodel.SetReminderViewModel
-import com.example.fundooapp.remindersettings.viewmodel.SetReminderViewModelFactory
+import com.example.fundooapp.model.Note
+import com.example.fundooapp.remindersettings.view.helper.ReminderService
 import com.example.fundooapp.viewmodel.NotesSharedViewModel
 import java.util.*
 
 
- class SetReminderFragment(private val tittle: String, val content: String) : DialogFragment() {
+ class SetReminderFragment(private val note: Note) : DialogFragment() {
 
     private lateinit var binding: FragmentSetReminderBinding
-    private lateinit var setReminderViewModel: SetReminderViewModel
     private lateinit var notesSharedViewModel: NotesSharedViewModel
     private lateinit var reminderCalendar: Calendar
 
@@ -38,14 +35,8 @@ import java.util.*
     ): View {
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_set_reminder, container, false)
-        setReminderViewModel = ViewModelProvider(
-            this, SetReminderViewModelFactory(
-                NotesService(DBHelper(requireContext()))
-            )
-        )[SetReminderViewModel::class.java]
-        notesSharedViewModel = ViewModelProvider(this)[NotesSharedViewModel::class.java]
+        notesSharedViewModel = ViewModelProvider(requireActivity())[NotesSharedViewModel::class.java]
         reminderCalendar = Calendar.getInstance()
-        binding.setReminderViewModel = setReminderViewModel
         binding.lifecycleOwner = this
         return binding.root
     }
@@ -60,7 +51,9 @@ import java.util.*
 
      private fun setReminder() {
          binding.setReminderIcon.setOnClickListener {
-
+             ReminderService(requireContext()).setReminder(reminderCalendar, note)
+             notesSharedViewModel.setReminderTime(reminderCalendar)
+             dismiss()
          }
      }
 
@@ -108,15 +101,15 @@ import java.util.*
             val datePickerDialog = DatePickerDialog(
                 requireContext(),
                 { view, year, month, dayOfMonth ->
-                    val date = Calendar.getInstance()
-                    date.set(Calendar.YEAR, year)
-                    date.set(Calendar.MONTH, month)
-                    date.set(Calendar.DATE, dayOfMonth)
+                    val datePickerCalender = Calendar.getInstance()
+                    datePickerCalender.set(Calendar.YEAR, year)
+                    datePickerCalender.set(Calendar.MONTH, month)
+                    datePickerCalender.set(Calendar.DATE, dayOfMonth)
                     reminderCalendar.set(Calendar.YEAR, year)
                     reminderCalendar.set(Calendar.MONTH, month)
                     reminderCalendar.set(Calendar.DATE, dayOfMonth)
 
-                    binding.selectDate.text = DateFormat.format("MMM d, yyyy", date)
+                    binding.selectDate.text = DateFormat.format("MMM d, yyyy", datePickerCalender)
                 },
                 year,
                 month,

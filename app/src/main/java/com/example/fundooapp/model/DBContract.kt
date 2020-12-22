@@ -14,5 +14,6 @@ interface DBContract {
         const val NOTE_TITTLE = "Note_Title"
         const val NOTE_CONTENT = "Note_Content"
         const val NOTES = "Notes"
+        const val REMINDER_TIME = "Reminder_time"
     }
 }
