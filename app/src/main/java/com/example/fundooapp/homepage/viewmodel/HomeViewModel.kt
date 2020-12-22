@@ -5,12 +5,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.fundooapp.model.INotesService
 import com.example.fundooapp.model.Note
+import com.example.fundooapp.util.NotesDisplayType
+import com.example.fundooapp.util.NotesDisplayType.ALL_NOTES
+import com.example.fundooapp.util.NotesDisplayType.REMINDER_NOTES
 import com.example.fundooapp.util.NotesOperation
 import com.example.fundooapp.util.ViewState
 
 class HomeViewModel(private val notesService: INotesService) : ViewModel() {
 
     private var _notes = listOf<Note>()
+    private var _reminderNotes = mutableListOf<Note>()
 
     private val _notesViewState = MutableLiveData<ViewState<List<Note>>>()
     val notesViewState = _notesViewState as LiveData<ViewState<List<Note>>>
@@ -71,6 +75,22 @@ class HomeViewModel(private val notesService: INotesService) : ViewModel() {
             exception?.let {
                 _notesViewState.value =
                     ViewState.Failure(it.localizedMessage ?: "Something went wrong")
+            }
+        }
+    }
+
+    fun displayNotesAsPerType(notesDisplayType: NotesDisplayType?) {
+        when (notesDisplayType) {
+            REMINDER_NOTES -> {
+                _reminderNotes.clear()
+                for (note in _notes) {
+                    if (note.reminderTime != 0L)
+                        _reminderNotes.add(note)
+                }
+                _notesViewState.value = ViewState.Success(_reminderNotes)
+            }
+            ALL_NOTES -> {
+                _notesViewState.value = ViewState.Success(_notes)
             }
         }
     }

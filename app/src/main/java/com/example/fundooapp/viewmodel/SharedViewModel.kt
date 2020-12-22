@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.fundooapp.model.INotesService
 import com.example.fundooapp.model.IUserService
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.User
@@ -14,15 +13,14 @@ import com.example.fundooapp.util.ViewType
 
 class SharedViewModel(
     private val userService: IUserService,
-    private val notesService: INotesService
 ) : ViewModel() {
 
     init {
         fetchUserDetails()
     }
 
-    private val _showAddNoteFab = MutableLiveData<Boolean>()
-    val showAddNoteFab = _showAddNoteFab as LiveData<Boolean>
+    private val _addNotesWidgetsStatus = MutableLiveData<Boolean>()
+    val addNotesWidgetsStatus = _addNotesWidgetsStatus as LiveData<Boolean>
 
     private val _goToRegisterPageStatus = MutableLiveData<Boolean>()
     val goToRegisterPageStatus = _goToRegisterPageStatus as LiveData<Boolean>
@@ -100,8 +98,8 @@ class SharedViewModel(
         _updateNoteStatus.value = state
     }
 
-    fun setAddNoteFab(status: Boolean) {
-        _showAddNoteFab.value = status
+    fun setAddNotesWidgets(status: Boolean) {
+        _addNotesWidgetsStatus.value = status
     }
 
 }

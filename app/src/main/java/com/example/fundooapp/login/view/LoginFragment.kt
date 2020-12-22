@@ -18,8 +18,6 @@ import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentLoginBinding
 import com.example.fundooapp.login.viewmodel.LoginViewModel
 import com.example.fundooapp.login.viewmodel.LoginViewModelFactory
-import com.example.fundooapp.model.DBHelper
-import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
 import com.example.fundooapp.util.Failed
 import com.example.fundooapp.util.FailingReason.*
@@ -50,9 +48,7 @@ class LoginFragment : Fragment() {
             LoginViewModelFactory(UserService())
         ).get(LoginViewModel::class.java)
         sharedViewModel = ViewModelProvider(
-            requireActivity(),
-            SharedViewModelFactory(UserService(), NotesService(DBHelper(requireContext())))
-        )[SharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
         binding.loginViewModel = loginViewModel
         binding.lifecycleOwner = this
         callBackManager = CallbackManager.Factory.create()

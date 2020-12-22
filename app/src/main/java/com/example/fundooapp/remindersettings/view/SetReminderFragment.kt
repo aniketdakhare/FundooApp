@@ -15,6 +15,7 @@ import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentSetReminderBinding
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.remindersettings.view.helper.ReminderService
+import com.example.fundooapp.remindersettings.viewmodel.SetReminderViewModel
 import com.example.fundooapp.viewmodel.NotesSharedViewModel
 import java.util.*
 
@@ -23,6 +24,7 @@ import java.util.*
 
     private lateinit var binding: FragmentSetReminderBinding
     private lateinit var notesSharedViewModel: NotesSharedViewModel
+    private lateinit var setReminderViewModel: SetReminderViewModel
     private lateinit var reminderCalendar: Calendar
 
     override fun onStart() {
@@ -36,7 +38,9 @@ import java.util.*
         binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_set_reminder, container, false)
         notesSharedViewModel = ViewModelProvider(requireActivity())[NotesSharedViewModel::class.java]
+        setReminderViewModel = ViewModelProvider(this)[SetReminderViewModel::class.java]
         reminderCalendar = Calendar.getInstance()
+        binding.setReminderViewModel = setReminderViewModel
         binding.lifecycleOwner = this
         return binding.root
     }

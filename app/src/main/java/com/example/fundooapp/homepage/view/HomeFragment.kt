@@ -20,6 +20,7 @@ import com.example.fundooapp.notesdisplay.view.NotesViewAdapter
 import com.example.fundooapp.util.ViewState.Success
 import com.example.fundooapp.util.ViewType
 import com.example.fundooapp.util.ViewType.GRID
+import com.example.fundooapp.viewmodel.NotesSharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 
@@ -27,6 +28,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private lateinit var viewType: ViewType
     private lateinit var homeViewModel: HomeViewModel
     private lateinit var sharedViewModel: SharedViewModel
+    private lateinit var notesSharedViewModel: NotesSharedViewModel
     private lateinit var binding: FragmentHomeBinding
     private lateinit var adapter: NotesViewAdapter
 
@@ -45,12 +47,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(
-                UserService(), NotesService(
-                    DBHelper(requireContext())
-                )
-            )
-        )[SharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
+        notesSharedViewModel = ViewModelProvider(requireActivity())[NotesSharedViewModel::class.java]
         binding.homeViewModel = homeViewModel
         binding.lifecycleOwner = this
         viewType = GRID
@@ -86,6 +84,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         sharedViewModel.updateNoteStatus.observe(viewLifecycleOwner, {
             if (it is Success)
                 homeViewModel.updateNotes(it.data)
+        })
+        notesSharedViewModel.notesDisplayType.observe(viewLifecycleOwner, {
+                homeViewModel.displayNotesAsPerType(it)
         })
     }
 

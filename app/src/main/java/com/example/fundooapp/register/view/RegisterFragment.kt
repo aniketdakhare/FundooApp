@@ -1,6 +1,5 @@
 package com.example.fundooapp.register.view
 
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,9 +13,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentRegisterBinding
-import com.example.fundooapp.model.DBHelper
-import com.example.fundooapp.model.NotesService
-import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.model.User
 import com.example.fundooapp.model.UserService
 import com.example.fundooapp.register.viewmodel.RegisterViewModel
@@ -25,6 +21,7 @@ import com.example.fundooapp.util.Failed
 import com.example.fundooapp.util.FailingReason.*
 import com.example.fundooapp.util.Loading
 import com.example.fundooapp.util.Succeed
+import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 
 class RegisterFragment : Fragment(R.layout.fragment_register) {
@@ -41,9 +38,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
             RegisterViewModelFactory(UserService())
         ).get(RegisterViewModel::class.java)
         sharedViewModel = ViewModelProvider(
-            requireActivity(),
-            SharedViewModelFactory(UserService(), NotesService(DBHelper(requireContext())))
-        )[SharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
         binding.registerViewModel = registerViewModel
         binding.lifecycleOwner = this
         return binding.root

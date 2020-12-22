@@ -16,17 +16,17 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.fundooapp.R
+import com.example.fundooapp.addnotes.view.AddNoteFragment
 import com.example.fundooapp.appstartpage.view.AppStartFragment
 import com.example.fundooapp.databinding.ActivityMainBinding
 import com.example.fundooapp.homepage.view.HomeFragment
 import com.example.fundooapp.login.view.LoginFragment
-import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.Note
-import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
-import com.example.fundooapp.addnotes.view.AddNoteFragment
 import com.example.fundooapp.profilepage.view.ProfilePage
 import com.example.fundooapp.register.view.RegisterFragment
+import com.example.fundooapp.util.NotesDisplayType.ALL_NOTES
+import com.example.fundooapp.util.NotesDisplayType.REMINDER_NOTES
 import com.example.fundooapp.util.NotesOperation
 import com.example.fundooapp.util.NotesOperation.*
 import com.example.fundooapp.util.ViewType.GRID
@@ -78,8 +78,14 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
         binding.navigationDrawer.setNavigationItemSelectedListener(NavigationView.OnNavigationItemSelectedListener {
             when (it.itemId) {
+                R.id.notes -> {
+                    operateAddNoteFab(true)
+                    notesSharedViewModel.setNotesDisplayType(ALL_NOTES)
+                    binding.drawer.closeDrawer(GravityCompat.START)
+                }
                 R.id.reminder_list -> {
-
+                    operateAddNoteFab(false)
+                    notesSharedViewModel.setNotesDisplayType(REMINDER_NOTES)
                     binding.drawer.closeDrawer(GravityCompat.START)
                 }
             }
@@ -90,12 +96,7 @@ class MainActivity : AppCompatActivity() {
     private fun initActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         sharedViewModel = ViewModelProvider(
-            this, SharedViewModelFactory(
-                UserService(), NotesService(
-                    DBHelper(this)
-                )
-            )
-        )[SharedViewModel::class.java]
+            this, SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
         notesSharedViewModel = ViewModelProvider(this)[NotesSharedViewModel::class.java]
     }
 
@@ -114,9 +115,10 @@ class MainActivity : AppCompatActivity() {
             it?.apply {
             goToNotesPage(it) }
         })
-        sharedViewModel.showAddNoteFab.observe(this, {
+        sharedViewModel.addNotesWidgetsStatus.observe(this, {
             menuStatus = it
             operateAddNoteFab(it)
+            operateAddNoteWidgets(it)
         })
     }
 
@@ -231,10 +233,19 @@ class MainActivity : AppCompatActivity() {
         when (status) {
             true -> {
                 binding.contentLayout.addNotesFab.show()
-                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             }
             false -> {
                 binding.contentLayout.addNotesFab.hide()
+            }
+        }
+    }
+
+    private fun operateAddNoteWidgets(status: Boolean?) {
+        when (status) {
+            true -> {
+                binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            }
+            false -> {
                 binding.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
                 toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
             }

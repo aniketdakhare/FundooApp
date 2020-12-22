@@ -12,10 +12,8 @@ import com.example.fundooapp.R
 import com.example.fundooapp.appstartpage.viewmodel.AppStartViewModel
 import com.example.fundooapp.appstartpage.viewmodel.AppStartViewModelFactory
 import com.example.fundooapp.databinding.FragmentAppStartBinding
-import com.example.fundooapp.model.DBHelper
-import com.example.fundooapp.model.NotesService
-import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.model.UserService
+import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
 
 class AppStartFragment : Fragment() {
@@ -33,11 +31,7 @@ class AppStartFragment : Fragment() {
             AppStartViewModelFactory(UserService())
         ).get(AppStartViewModel::class.java)
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(
-                UserService(),
-                NotesService(DBHelper(requireContext()))
-            )
-        )[SharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
         binding.appStartViewModel = appStartViewModel
         binding.lifecycleOwner = this
         return binding.root

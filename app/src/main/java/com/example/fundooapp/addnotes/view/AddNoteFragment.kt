@@ -3,7 +3,6 @@ package com.example.fundooapp.addnotes.view
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.databinding.DataBindingUtil
@@ -48,15 +47,10 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
             AddNoteViewModelFactory(NotesService(DBHelper(requireContext())))
         ).get(AddNoteViewModel::class.java)
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(
-                UserService(), NotesService(
-                    DBHelper(requireContext())
-                )
-            )
-        )[SharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
         notesSharedViewModel = ViewModelProvider(requireActivity())[NotesSharedViewModel::class.java]
         sharedViewModel.setNoteToWrite(null)
-        sharedViewModel.setAddNoteFab(false)
+        sharedViewModel.setAddNotesWidgets(false)
         binding.addNotesViewModel = addNoteViewModel
         binding.lifecycleOwner = this
         return binding.root
@@ -113,7 +107,7 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
 
     override fun onStop() {
         super.onStop()
-        sharedViewModel.setAddNoteFab(true)
+        sharedViewModel.setAddNotesWidgets(true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
