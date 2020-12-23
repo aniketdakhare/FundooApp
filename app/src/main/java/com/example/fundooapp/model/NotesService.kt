@@ -1,9 +1,7 @@
 package com.example.fundooapp.model
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlin.Exception
 
 class NotesService(private val dbHelper: DBHelper) : INotesService {
 
@@ -26,13 +24,11 @@ class NotesService(private val dbHelper: DBHelper) : INotesService {
             notes.noteId = documentReference.id
             notes.userId = user.uid
 
-            Log.e(TAG, "addNotes: ${documentReference.id}")
-
             documentReference.set(notes).addOnSuccessListener {
                 dbHelper.addNote(notes) {
                     listener(notes, null)
                 }
-            }.addOnFailureListener{
+            }.addOnFailureListener {
                 listener(null, it)
             }
         }
@@ -48,7 +44,7 @@ class NotesService(private val dbHelper: DBHelper) : INotesService {
                 dbHelper.updateNote(notes) {
                     listener(it, null)
                 }
-                }.addOnFailureListener{
+            }.addOnFailureListener {
                 listener(null, it)
             }
     }
@@ -57,14 +53,13 @@ class NotesService(private val dbHelper: DBHelper) : INotesService {
         fireStore.collection("users").document(note.userId)
             .collection("Notes").document(note.noteId).delete()
             .addOnSuccessListener {
-                dbHelper.deleteNote(note) {listener(it, null)}
-            }.addOnFailureListener{
+                dbHelper.deleteNote(note) { listener(it, null) }
+            }.addOnFailureListener {
                 listener(null, it)
             }
     }
 
     override fun fetchNotes(listener: (List<Note>, Exception?) -> Unit) {
-        Log.e(TAG, "fetchNotes: ")
         firebaseAuth.currentUser?.let {
             dbHelper.fetchNotes(it.uid) { notes ->
                 listener(notes, null)
@@ -88,14 +83,11 @@ class NotesService(private val dbHelper: DBHelper) : INotesService {
                                     document.getLong("reminderTime")!!
                                 )
                             )
-                            Log.e(TAG, "fetchNotesFromFireStore: ${document.getLong("reminderTime")!!}", )
                         }
                     }
-                    Log.e(TAG, "fetchNotesFromFireStore: Success ${notes.size}")
                     listener(notes)
                 }.addOnFailureListener { e ->
                     listener(emptyList())
-                    Log.e(TAG, "fetchNotesFromFireStore: Fail")
                     e.printStackTrace()
                 }
         }

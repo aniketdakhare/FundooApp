@@ -12,6 +12,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val channelNotification = notificationHelper.getChannelNotification(
             remoteMessage.notification?.title.toString(),
             remoteMessage.notification?.body.toString())
-        notificationHelper.manager?.notify(2, channelNotification.build())
+        notificationHelper.manager?.notify(0, channelNotification.build())
     }
 }

@@ -14,6 +14,8 @@ class ReminderService(val context: Context) {
         val intent = Intent(context, ReminderReceiver::class.java)
         intent.putExtra("tittle", note.tittle)
         intent.putExtra("text", note.content)
+        intent.putExtra("noteId", note.noteId)
+        intent.putExtra("userId", note.userId)
         val pendingIntent = PendingIntent.getBroadcast(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminderCalendar.timeInMillis, pendingIntent)
     }

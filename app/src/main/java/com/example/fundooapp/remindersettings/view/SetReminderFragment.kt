@@ -55,6 +55,7 @@ import java.util.*
 
      private fun setReminder() {
          binding.setReminderIcon.setOnClickListener {
+
              ReminderService(requireContext()).setReminder(reminderCalendar, note)
              notesSharedViewModel.setReminderTime(reminderCalendar)
              dismiss()

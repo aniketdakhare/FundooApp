@@ -8,7 +8,6 @@ import com.example.fundooapp.model.Note
 import com.example.fundooapp.util.NotesDisplayType
 import com.example.fundooapp.util.NotesDisplayType.ALL_NOTES
 import com.example.fundooapp.util.NotesDisplayType.REMINDER_NOTES
-import com.example.fundooapp.util.NotesOperation
 import com.example.fundooapp.util.ViewState
 
 class HomeViewModel(private val notesService: INotesService) : ViewModel() {
@@ -19,16 +18,13 @@ class HomeViewModel(private val notesService: INotesService) : ViewModel() {
     private val _notesViewState = MutableLiveData<ViewState<List<Note>>>()
     val notesViewState = _notesViewState as LiveData<ViewState<List<Note>>>
 
-    private val _writeNote = MutableLiveData<Pair<Note, NotesOperation>>()
-    val writeNote = _writeNote as LiveData<Pair<Note, NotesOperation>>
-
     init {
         _notesViewState.value = ViewState.Loading(emptyList())
         updateLocalDb()
     }
 
     fun deleteNotes(noteDetails: Note) {
-        notesService.deleteNotes(noteDetails) { status: Boolean?, exception: Exception? ->
+        notesService.deleteNotes(noteDetails) { status, _ ->
             if (status == true) {
                 val filter = _notes.filter {
                     it.noteId == noteDetails.noteId
@@ -58,12 +54,8 @@ class HomeViewModel(private val notesService: INotesService) : ViewModel() {
         }
     }
 
-    fun setNoteToWrite(note: Pair<Note, NotesOperation>?) {
-        _writeNote.value = note
-    }
-
     private fun updateLocalDb() {
-        notesService.updateLocalDB() { isUpdated, exception ->
+        notesService.updateLocalDB() { isUpdated, _ ->
             if (isUpdated == true) getAllNotes()
         }
     }

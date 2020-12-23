@@ -1,6 +1,5 @@
 package com.example.fundooapp.addnotes.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,11 +19,9 @@ class AddNoteViewModel(private val notesService: INotesService) : ViewModel() {
         _addNoteStatus.value = ViewState.Loading(Note())
         _updateNoteStatus.value = ViewState.Loading(Note())
     }
-//    private val _isNotesOperated = MutableLiveData<Boolean>()
-//    val isNotesOperated = _isNotesOperated as LiveData<Boolean>
 
     fun addNotes(noteDetails: Note) {
-        notesService.addNotes(noteDetails) { note, exception ->
+        notesService.addNotes(noteDetails) { note, _ ->
             note?.let {
                 _addNoteStatus.value = ViewState.Success(note)
             }
@@ -32,16 +29,10 @@ class AddNoteViewModel(private val notesService: INotesService) : ViewModel() {
     }
 
     fun updateNotes(noteDetails: Note) {
-        notesService.updateNotes(noteDetails) { status, exception ->
-            Log.e(Companion.TAG, "updateNotes: $status :: $exception", )
+        notesService.updateNotes(noteDetails) { status, _ ->
             if (status == true) {
                 _updateNoteStatus.value = ViewState.Success(noteDetails)
             }
         }
     }
-
-    companion object {
-        private const val TAG = "AddNoteViewModel"
-    }
-
 }

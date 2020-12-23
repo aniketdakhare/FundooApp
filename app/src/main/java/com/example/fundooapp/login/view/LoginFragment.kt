@@ -48,7 +48,8 @@ class LoginFragment : Fragment() {
             LoginViewModelFactory(UserService())
         ).get(LoginViewModel::class.java)
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(UserService())
+        )[SharedViewModel::class.java]
         binding.loginViewModel = loginViewModel
         binding.lifecycleOwner = this
         callBackManager = CallbackManager.Factory.create()
@@ -68,7 +69,6 @@ class LoginFragment : Fragment() {
     private fun actionForForgetPassword() {
         binding.forgotPassword.setOnClickListener { resetUserPassword(it) }
     }
-
 
     private fun checkLoginDetails() {
         val email = binding.loginEmailAddress.text.toString().trim()
@@ -106,12 +106,9 @@ class LoginFragment : Fragment() {
     private fun loginUser(message: String) {
         sharedViewModel.fetchUserDetails()
         sharedViewModel.userDetails.observe(viewLifecycleOwner, {
-//            sharedViewModel.notesUpdateStatus.observe(viewLifecycleOwner, { status ->
-//                if (status) {
-                    binding.loginProgressBar.visibility = View.GONE
-                    sharedViewModel.setGoToHomePageStatus(true)
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-//                }})
+            binding.loginProgressBar.visibility = View.GONE
+            sharedViewModel.setGoToHomePageStatus(true)
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         })
     }
 

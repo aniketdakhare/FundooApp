@@ -10,7 +10,7 @@ import com.example.fundooapp.util.FailingReason.*
 import com.example.fundooapp.util.Status
 import com.example.fundooapp.util.Succeed
 
-class RegisterViewModel(private val userService: IUserService): ViewModel() {
+class RegisterViewModel(private val userService: IUserService) : ViewModel() {
     private val _userRegistrationStatus = MutableLiveData<Status>()
     val userRegistrationStatus = _userRegistrationStatus as LiveData<Status>
 
@@ -38,7 +38,8 @@ class RegisterViewModel(private val userService: IUserService): ViewModel() {
             else -> {
                 userService.registerUser(user) {
                     when (it) {
-                        false -> _userRegistrationStatus.value = Failed("Registration unsuccessful, Please try again", OTHER)
+                        false -> _userRegistrationStatus.value =
+                            Failed("Registration unsuccessful, Please try again", OTHER)
                         true -> _userRegistrationStatus.value = Succeed("Registration Successful")
                     }
                 }

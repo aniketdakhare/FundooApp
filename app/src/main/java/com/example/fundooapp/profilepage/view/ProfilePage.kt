@@ -33,7 +33,8 @@ class ProfilePage : DialogFragment() {
             ProfileViewModel::class.java
         )
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(UserService())
+        )[SharedViewModel::class.java]
         binding.profileViewModel = profileViewModel
         binding.lifecycleOwner = this
         return binding.root

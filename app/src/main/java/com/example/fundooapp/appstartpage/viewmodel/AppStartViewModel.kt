@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.fundooapp.model.IUserService
-import com.example.fundooapp.model.User
 
 class AppStartViewModel(private val service: IUserService): ViewModel() {
 

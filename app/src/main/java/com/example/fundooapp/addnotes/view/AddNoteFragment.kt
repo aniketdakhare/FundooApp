@@ -1,7 +1,6 @@
 package com.example.fundooapp.addnotes.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
@@ -62,25 +61,19 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
         addNoteViewModel.addNoteStatus.observe(viewLifecycleOwner, {
             if (it is Success) {
                 sharedViewModel.setAddNoteStatus(it)
-                Log.e(TAG, "onViewCreated: add:  ${activity?.supportFragmentManager?.backStackEntryCount}")
                 activity?.supportFragmentManager?.popBackStack()
-                Log.e(TAG, "onViewCreated: add:  ${activity?.supportFragmentManager?.backStackEntryCount}")
-
             }
         })
         addNoteViewModel.updateNoteStatus.observe(viewLifecycleOwner, {
             if (it is Success) {
-                Log.e(TAG, "onViewCreated: Update: Success")
                 sharedViewModel.setUpdateNoteStatus(it)
-                Log.e(TAG, "onViewCreated: Update:  ${activity?.supportFragmentManager?.backStackEntryCount}")
                 activity?.supportFragmentManager?.popBackStack()
-                Log.e(TAG, "onViewCreated: Update:  ${activity?.supportFragmentManager?.backStackEntryCount}")
-
             }
         })
         notesSharedViewModel.reminderTime.observe(viewLifecycleOwner, {
             note.reminderTime = it.timeInMillis
         })
+        saveNotes()
     }
 
     private fun saveNotes() {
@@ -102,7 +95,6 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
         binding.editTextNotes.doOnTextChanged { text, _, _, _ ->
             note.content = text.toString()
         }
-        saveNotes()
     }
 
     override fun onStop() {
@@ -129,9 +121,5 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
         (activity as AppCompatActivity).toolbar.setNavigationOnClickListener {
             (activity as AppCompatActivity).supportFragmentManager.popBackStack()
         }
-    }
-
-    companion object {
-        private const val TAG = "AddNoteFragment"
     }
 }

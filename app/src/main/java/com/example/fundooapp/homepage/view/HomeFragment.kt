@@ -1,7 +1,6 @@
 package com.example.fundooapp.homepage.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +16,7 @@ import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.NotesService
 import com.example.fundooapp.model.UserService
 import com.example.fundooapp.notesdisplay.view.NotesViewAdapter
+import com.example.fundooapp.util.NotesOperation.UPDATE
 import com.example.fundooapp.util.ViewState.Success
 import com.example.fundooapp.util.ViewType
 import com.example.fundooapp.util.ViewType.GRID
@@ -47,8 +47,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
-        notesSharedViewModel = ViewModelProvider(requireActivity())[NotesSharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(UserService())
+        )[SharedViewModel::class.java]
+        notesSharedViewModel =
+            ViewModelProvider(requireActivity())[NotesSharedViewModel::class.java]
         binding.homeViewModel = homeViewModel
         binding.lifecycleOwner = this
         viewType = GRID
@@ -59,7 +61,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         super.onViewCreated(view, savedInstanceState)
         homeViewModel.notesViewState.observe(viewLifecycleOwner, {
             if (it is Success) {
-                adapter = NotesViewAdapter(it.data, homeViewModel)
+                adapter = NotesViewAdapter(it.data, { note ->
+                    sharedViewModel.setNoteToWrite(Pair(note, UPDATE))
+                }, { note ->
+                    homeViewModel.deleteNotes(note)
+                })
                 sharedViewModel.queryText.observe(viewLifecycleOwner, { text ->
                     adapter.filter.filter(text)
                 })
@@ -67,16 +73,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 displayNotes()
             }
         })
-        homeViewModel.writeNote.observe(viewLifecycleOwner, {
-            it?.apply {
-                Log.e(Companion.TAG, "onViewCreated: ", )
-                sharedViewModel.setNoteToWrite(it)
-            }
-        })
-    }
-
-    override fun onStart() {
-        super.onStart()
         sharedViewModel.addNoteStatus.observe(viewLifecycleOwner, {
             if (it is Success)
                 homeViewModel.addNotes(it.data)
@@ -86,12 +82,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 homeViewModel.updateNotes(it.data)
         })
         notesSharedViewModel.notesDisplayType.observe(viewLifecycleOwner, {
-                homeViewModel.displayNotesAsPerType(it)
+            homeViewModel.displayNotesAsPerType(it)
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
         sharedViewModel.notesDisplayType.observe(viewLifecycleOwner, {
             this.viewType = it
             displayNotes()
@@ -102,9 +94,5 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.notesList.layoutManager =
             StaggeredGridLayoutManager(viewType.flag, StaggeredGridLayoutManager.VERTICAL)
         binding.notesList.adapter = adapter
-    }
-
-    companion object {
-        private const val TAG = "HomeFragment"
     }
 }

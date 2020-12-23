@@ -1,11 +1,9 @@
 package com.example.fundooapp.mainactivity.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -98,7 +96,8 @@ class MainActivity : AppCompatActivity() {
     private fun initActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         sharedViewModel = ViewModelProvider(
-            this, SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
+            this, SharedViewModelFactory(UserService())
+        )[SharedViewModel::class.java]
         notesSharedViewModel = ViewModelProvider(this)[NotesSharedViewModel::class.java]
     }
 
@@ -113,9 +112,9 @@ class MainActivity : AppCompatActivity() {
             if (it == true) goToLoginUserPage()
         })
         sharedViewModel.writeNote.observe(this, {
-            Log.e("Main", "observeAppNavigation: 09", )
             it?.apply {
-            goToNotesPage(it) }
+                goToNotesPage(it)
+            }
         })
         sharedViewModel.addNotesWidgetsStatus.observe(this, {
             menuStatus = it
@@ -223,9 +222,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 sharedViewModel.setNotesDisplayType(viewType)
-            }
-            R.id.addReminder -> {
-                Toast.makeText(this, "Add Reminder", Toast.LENGTH_SHORT).show()
             }
         }
         return super.onOptionsItemSelected(item)

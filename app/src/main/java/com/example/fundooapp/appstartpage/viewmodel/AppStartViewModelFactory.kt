@@ -2,7 +2,6 @@ package com.example.fundooapp.appstartpage.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.fundooapp.model.INotesService
 import com.example.fundooapp.model.IUserService
 
 class AppStartViewModelFactory(private val service: IUserService) : ViewModelProvider.Factory {

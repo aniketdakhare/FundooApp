@@ -2,7 +2,6 @@ package com.example.fundooapp.model
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import com.facebook.AccessToken
 import com.facebook.GraphRequest
 import com.facebook.GraphResponse
@@ -58,7 +57,6 @@ class UserService : IUserService {
             if (it.isSuccessful) {
                 val user: FirebaseUser? = firebaseAuth.currentUser
                 fetchFacebookProfile { url ->
-                    Log.e(TAG, "facebookLogin: $url")
                     val userDetails = User(
                         fullName = user?.displayName.toString(),
                         email = user?.email.toString(),

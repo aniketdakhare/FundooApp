@@ -38,7 +38,8 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
             RegisterViewModelFactory(UserService())
         ).get(RegisterViewModel::class.java)
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(UserService())
+        )[SharedViewModel::class.java]
         binding.registerViewModel = registerViewModel
         binding.lifecycleOwner = this
         return binding.root
