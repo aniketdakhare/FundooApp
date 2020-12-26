@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentLoginBinding
+import com.example.fundooapp.fundoofirebaseauth.LoginService
 import com.example.fundooapp.login.viewmodel.LoginViewModel
 import com.example.fundooapp.login.viewmodel.LoginViewModelFactory
 import com.example.fundooapp.model.UserService
@@ -45,18 +47,18 @@ class LoginFragment : Fragment() {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
         loginViewModel = ViewModelProvider(
             this,
-            LoginViewModelFactory(UserService())
+            LoginViewModelFactory(UserService(), LoginService())
         ).get(LoginViewModel::class.java)
-        sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(UserService())
-        )[SharedViewModel::class.java]
-        binding.loginViewModel = loginViewModel
         binding.lifecycleOwner = this
         callBackManager = CallbackManager.Factory.create()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        sharedViewModel = ViewModelProvider(
+            requireActivity(), SharedViewModelFactory(LoginService())
+        )[SharedViewModel::class.java]
+        binding.loginViewModel = loginViewModel
         super.onViewCreated(view, savedInstanceState)
         binding.loginButton.setOnClickListener {
             checkLoginDetails()
@@ -77,6 +79,7 @@ class LoginFragment : Fragment() {
         loginViewModel.authenticateUser(email, password)
 
         loginViewModel.userAuthenticationStatus.observe(viewLifecycleOwner, Observer {
+            Log.e(TAG, "checkLoginDetails: ${it}" )
             when (it) {
                 is Failed -> {
                     when (it.reason) {
@@ -97,18 +100,18 @@ class LoginFragment : Fragment() {
                         else -> Toast.makeText(context, "Loading...", Toast.LENGTH_SHORT).show()
                     }
                 }
-                is Succeed -> loginUser(it.message)
+                is Succeed -> loginUser(it)
                 Loading -> binding.loginProgressBar.visibility = View.VISIBLE
             }
         })
     }
 
-    private fun loginUser(message: String) {
-        sharedViewModel.fetchUserDetails()
+    private fun loginUser(status: Succeed) {
+        sharedViewModel.fetchUserDetails(status.localId, status.idToken)
         sharedViewModel.userDetails.observe(viewLifecycleOwner, {
             binding.loginProgressBar.visibility = View.GONE
             sharedViewModel.setGoToHomePageStatus(true)
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, status.message, Toast.LENGTH_SHORT).show()
         })
     }
 
@@ -194,5 +197,9 @@ class LoginFragment : Fragment() {
     override fun onStop() {
         super.onStop()
         (activity as AppCompatActivity).supportActionBar?.show()
+    }
+
+    companion object {
+        private const val TAG = "LoginFragment"
     }
 }

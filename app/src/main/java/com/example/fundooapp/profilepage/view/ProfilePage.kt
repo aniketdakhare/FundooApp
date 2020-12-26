@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentProfilePageBinding
+import com.example.fundooapp.fundoofirebaseauth.LoginService
 import com.example.fundooapp.model.UserService
 import com.example.fundooapp.profilepage.viewmodel.ProfileViewModel
 import com.example.fundooapp.profilepage.viewmodel.ProfileViewModelFactory
@@ -33,7 +34,7 @@ class ProfilePage : DialogFragment() {
             ProfileViewModel::class.java
         )
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(UserService())
+            requireActivity(), SharedViewModelFactory(LoginService())
         )[SharedViewModel::class.java]
         binding.profileViewModel = profileViewModel
         binding.lifecycleOwner = this

@@ -17,6 +17,7 @@ import com.example.fundooapp.R
 import com.example.fundooapp.addnotes.view.AddNoteFragment
 import com.example.fundooapp.appstartpage.view.AppStartFragment
 import com.example.fundooapp.databinding.ActivityMainBinding
+import com.example.fundooapp.fundoofirebaseauth.LoginService
 import com.example.fundooapp.homepage.view.HomeFragment
 import com.example.fundooapp.login.view.LoginFragment
 import com.example.fundooapp.model.Note
@@ -96,7 +97,7 @@ class MainActivity : AppCompatActivity() {
     private fun initActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         sharedViewModel = ViewModelProvider(
-            this, SharedViewModelFactory(UserService())
+            this, SharedViewModelFactory(LoginService())
         )[SharedViewModel::class.java]
         notesSharedViewModel = ViewModelProvider(this)[NotesSharedViewModel::class.java]
     }
@@ -249,4 +250,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 }

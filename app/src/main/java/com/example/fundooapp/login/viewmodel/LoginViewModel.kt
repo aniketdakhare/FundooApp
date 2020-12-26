@@ -1,5 +1,6 @@
 package com.example.fundooapp.login.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -12,7 +13,7 @@ import com.example.fundooapp.util.Status
 import com.example.fundooapp.util.Succeed
 import com.facebook.AccessToken
 
-class LoginViewModel(private val userService: IUserService) : ViewModel() {
+class LoginViewModel(private val userService: IUserService, private val loginService: IUserService) : ViewModel() {
 
     private val _userAuthenticationStatus = MutableLiveData<Status>()
     val userAuthenticationStatus = _userAuthenticationStatus as LiveData<Status>
@@ -34,10 +35,11 @@ class LoginViewModel(private val userService: IUserService) : ViewModel() {
             password.isEmpty() -> _userAuthenticationStatus.value =
                 Failed("Please Enter Password", PASSWORD)
             else -> {
-                userService.authenticateUser(email, password) {
-                    when (it) {
+                loginService.authenticateUser(email, password) {
+                    Log.e("LoginviewModel", "authenticateUser: $it" )
+                    when (it.registeredStatus) {
                         false -> _userAuthenticationStatus.value = Failed(FAIL_MSG, OTHER)
-                        true -> _userAuthenticationStatus.value = Succeed(SUCCESS_MSG)
+                        true -> _userAuthenticationStatus.value = Succeed(SUCCESS_MSG, it.idToken, it.localId)
                     }
                 }
             }

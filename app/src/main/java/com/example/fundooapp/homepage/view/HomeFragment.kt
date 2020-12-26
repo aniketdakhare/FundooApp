@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentHomeBinding
+import com.example.fundooapp.fundoofirebaseauth.LoginService
 import com.example.fundooapp.homepage.viewmodel.HomeViewModel
 import com.example.fundooapp.homepage.viewmodel.HomeViewModelFactory
 import com.example.fundooapp.model.DBHelper
@@ -47,7 +48,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(UserService())
+            requireActivity(), SharedViewModelFactory(LoginService())
         )[SharedViewModel::class.java]
         notesSharedViewModel =
             ViewModelProvider(requireActivity())[NotesSharedViewModel::class.java]

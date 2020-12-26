@@ -13,6 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.fundooapp.R
 import com.example.fundooapp.databinding.FragmentRegisterBinding
+import com.example.fundooapp.fundoofirebaseauth.LoginService
 import com.example.fundooapp.model.User
 import com.example.fundooapp.model.UserService
 import com.example.fundooapp.register.viewmodel.RegisterViewModel
@@ -38,7 +39,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
             RegisterViewModelFactory(UserService())
         ).get(RegisterViewModel::class.java)
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(UserService())
+            requireActivity(), SharedViewModelFactory(LoginService())
         )[SharedViewModel::class.java]
         binding.registerViewModel = registerViewModel
         binding.lifecycleOwner = this
@@ -121,7 +122,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
     }
 
     private fun registerUser(message: String) {
-        sharedViewModel.fetchUserDetails()
+//        sharedViewModel.fetchUserDetails()
         binding.registerProgressBar.visibility = View.GONE
         sharedViewModel.setGoToHomePageStatus(true)
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()

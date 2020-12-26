@@ -12,6 +12,7 @@ import com.example.fundooapp.R
 import com.example.fundooapp.appstartpage.viewmodel.AppStartViewModel
 import com.example.fundooapp.appstartpage.viewmodel.AppStartViewModelFactory
 import com.example.fundooapp.databinding.FragmentAppStartBinding
+import com.example.fundooapp.fundoofirebaseauth.LoginService
 import com.example.fundooapp.model.UserService
 import com.example.fundooapp.viewmodel.SharedViewModel
 import com.example.fundooapp.viewmodel.SharedViewModelFactory
@@ -31,7 +32,7 @@ class AppStartFragment : Fragment() {
             AppStartViewModelFactory(UserService())
         ).get(AppStartViewModel::class.java)
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(LoginService()))[SharedViewModel::class.java]
         binding.appStartViewModel = appStartViewModel
         binding.lifecycleOwner = this
         return binding.root

@@ -2,6 +2,8 @@ package com.example.fundooapp.model
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import com.example.fundooapp.util.AuthResponseDetails
 import com.facebook.AccessToken
 import com.facebook.GraphRequest
 import com.facebook.GraphResponse
@@ -32,9 +34,9 @@ class UserService : IUserService {
         mStorageRef = FirebaseStorage.getInstance().reference
     }
 
-    override fun authenticateUser(email: String, password: String, listener: (Boolean) -> Unit) {
+    override fun authenticateUser(email: String, password: String, listener: (AuthResponseDetails) -> Unit) {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
-            listener(it.isSuccessful)
+            listener(AuthResponseDetails( registeredStatus = it.isSuccessful))
         }
     }
 
@@ -89,11 +91,12 @@ class UserService : IUserService {
             .addOnCompleteListener { listener(it.isSuccessful) }
     }
 
-    override fun getUserDetails(listener: (User) -> Unit) {
+    override fun getUserDetails(localId: String, idToken: String, listener: (User) -> Unit) {
         firebaseAuth.currentUser?.let {
+            Log.e(TAG, "getUserDetails: 95", )
             fireStore.collection(USER_COLLECTION).document(it.uid)
                 .addSnapshotListener { value: DocumentSnapshot?, _: FirebaseFirestoreException? ->
-
+                    Log.e(TAG, "getUserDetails: ${value?.getString(NAME).toString()}", )
                     listener(
                         User(
                             fullName = value?.getString(NAME).toString(),

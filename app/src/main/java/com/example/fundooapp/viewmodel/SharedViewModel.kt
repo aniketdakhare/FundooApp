@@ -1,6 +1,7 @@
 package com.example.fundooapp.viewmodel
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,7 +17,7 @@ class SharedViewModel(
 ) : ViewModel() {
 
     init {
-        fetchUserDetails()
+//        fetchUserDetails()
     }
 
     private val _addNotesWidgetsStatus = MutableLiveData<Boolean>()
@@ -80,8 +81,11 @@ class SharedViewModel(
         _imageUri.value = imageUri
     }
 
-    fun fetchUserDetails() {
-        userService.getUserDetails {
+    fun fetchUserDetails(localId: String, idToken: String) {
+        Log.e(TAG, "fetchUserDetails: ", )
+        userService.getUserDetails(localId, idToken) {
+            Log.e(TAG, "getUserDetails: ", )
+
             _userDetails.value = it
         }
     }
@@ -102,4 +106,7 @@ class SharedViewModel(
         _addNotesWidgetsStatus.value = status
     }
 
+    companion object {
+        private const val TAG = "SharedViewModel"
+    }
 }

@@ -11,6 +11,7 @@ import com.example.fundooapp.R
 import com.example.fundooapp.addnotes.viewmodel.AddNoteViewModel
 import com.example.fundooapp.addnotes.viewmodel.AddNoteViewModelFactory
 import com.example.fundooapp.databinding.AddNotesFragmentBinding
+import com.example.fundooapp.fundoofirebaseauth.LoginService
 import com.example.fundooapp.model.DBHelper
 import com.example.fundooapp.model.Note
 import com.example.fundooapp.model.NotesService
@@ -46,7 +47,7 @@ class AddNoteFragment(private val note: Note, private val operation: NotesOperat
             AddNoteViewModelFactory(NotesService(DBHelper(requireContext())))
         ).get(AddNoteViewModel::class.java)
         sharedViewModel = ViewModelProvider(
-            requireActivity(), SharedViewModelFactory(UserService()))[SharedViewModel::class.java]
+            requireActivity(), SharedViewModelFactory(LoginService()))[SharedViewModel::class.java]
         notesSharedViewModel = ViewModelProvider(requireActivity())[NotesSharedViewModel::class.java]
         sharedViewModel.setNoteToWrite(null)
         sharedViewModel.setAddNotesWidgets(false)
